@@ -9,9 +9,10 @@ from .forms import CustomUserCreationForm, CustomUserLoginForm, \
 from .models import CustomUser
 from django.contrib import messages
 from main.models import Product
+from django.contrib.auth import login as auth_login
 
 def register(request):
-    if request.method == ' POST':
+    if request.method =='POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
@@ -21,16 +22,16 @@ def register(request):
         form = CustomUserCreationForm()
     return render(request, 'users/register.html', {'form':form})
 
-    def login_view(request):
-        if request.method == 'POST':
-            form = CustomUserLoginForm(request=request, data=request.POST)
-            if form.is_valid():
-                user = form.get_user()
-                login(request, user, backend='django.contrib.auth.backedns.ModelBackend')
-                return redirect('main:index')
-            else:
-                form = CustomUserLoginForm()
-            return render(request, 'users/login.html', {'form': form})
+def login_view(request):
+    if request.method =='POST':
+        form = CustomUserLoginForm(request=request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            return redirect('main:index')
+    else:
+        form = CustomUserLoginForm()
+    return render(request, 'users/login.html', {'form': form})
 
 
 @login_required(login_url='/users/login')
@@ -39,19 +40,20 @@ def profile_view(request):
         form = CustomUserUpdateForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
-            if request.headers.get('HX-Request'):
+            if request.headers.get("HX-Request"):
                 return HttpResponse(headers={'HX-Redirect': reverse('users:profile')})
             return redirect('users:profile')
-        else:
-            form = CustomUserUpdateForm(instance=request.user)
-        
-        recommended_products = Product.objects.all().order_by('id')[:3]
+    else:
+        form = CustomUserUpdateForm(instance=request.user)
+
+    recommended_products = Product.objects.all().order_by('id')[:3]
 
     return TemplateResponse(request, 'users/profile.html', {
         'form': form,
-         'user': request.user,
-         'recommended_products': recommended_products
-        })
+        'user': request.user,
+        'recommended_products': recommended_products
+    })
+
 
 
 @login_required(login_url='/users/login')
@@ -71,10 +73,10 @@ def edit_account_details(request):
 
 @login_required(login_url='/users/login')
 def update_account_details(request):
-    if request.method == 'POST':
+    if request.method =='POST':
         form = CustomUserUpdateForm(request.POST, instance=request.user)
         if form.is_valid():
-            user=  form.save(commit=False)
+            user=form.save(commit=False)
             user.clean()
             user.save()
             updated_user = CustomUser.objects.get(id=user_id)

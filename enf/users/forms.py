@@ -9,7 +9,7 @@ User = get_user_model()
 
 
 class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(required=True, max_length=254)
+    email = forms.EmailField(required=True, max_length=254, widget=forms.EmailInput(attrs={'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900 placeholder-gray-500', 'placeholder': 'EMAIL'}))
     first_name = forms.CharField(required=True, max_length=50, widget=forms.TextInput(attrs={'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900 placeholder-gray-500', 'placeholder': 'FIRST NAME'}))
     last_name = forms.CharField(required=True, max_length=50, widget=forms.TextInput(attrs={'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900 placeholder-gray-500', 'placeholder': 'LAST NAME'}))
     password1 = forms.CharField(
@@ -22,24 +22,20 @@ class CustomUserCreationForm(UserCreationForm):
     )
 
 
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email', 'password1', 'password2')
 
-
-class Meta:
-    model = User
-    fields = ('first_name', 'last_name', 'email', 'password1', 'password2')
-
-
-
+    
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exists():
-            raise forms.ValidationError('This email address is already in use.')
+            raise forms.ValidationError('This email is already in use.')
         return email
-
+    
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.username = None
         if commit:
             user.save()
         return user
@@ -61,7 +57,7 @@ class CustomUserLoginForm(AuthenticationForm):
             self.user_cache = authenticate(self.request, email = email, password=password)
             if self.user_cache is None:
                 raise forms.ValidationError('Invalid email or password.')
-            elif not self.user_cache.is_active():
+            elif not self.user_cache.is_active:
                 raise forms.ValidationError('This account is inactive.')
             return self.cleaned_data
 
