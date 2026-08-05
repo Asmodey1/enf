@@ -33,6 +33,8 @@ INSTALLED_APPS = [
     'main',
     'cart',
     'users',
+    'orders',
+    'payment',
 ]
 
 MIDDLEWARE = [
@@ -124,3 +126,6 @@ SESSION_COOKIE_AGE = 86400 #30 DNEY
 SESSION_SAVE_EVERY_REQUEST = True
 
 AUTH_USER_MODEL = 'users.CustomUser'
+
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+STRIPE_WEBKOOK_SECRET_KEY = os.getenv('STRIPE_WEBKOOK_SECRET')
