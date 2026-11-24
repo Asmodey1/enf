@@ -1,0 +1,76 @@
+/* ==========================================================================
+   Переключатель языка RU ⇄ EN
+   Использует токены из main/static/main/css/style.css (--fg, --subtle, --caps…),
+   поэтому подключать после него. Выглядит как остальные ссылки шапки.
+   ========================================================================== */
+
+.lang-switch {
+  display: inline-flex;
+  margin: 0;
+}
+
+.lang-switch__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-block: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: var(--caps);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.lang-switch__code {
+  position: relative;
+  color: var(--subtle);
+  transition: color 0.2s var(--ease);
+}
+
+/* Подчёркивание как у .nav__link: у активного языка оно на месте */
+.lang-switch__code::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.35s var(--ease-out);
+}
+
+.lang-switch__code.is-active {
+  color: var(--fg);
+}
+
+.lang-switch__code.is-active::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.lang-switch__sep {
+  color: var(--line-strong);
+}
+
+/* При наведении второй язык темнеет — видно, что кнопка нажимается.
+   Подчёркивание остаётся под текущим языком, чтобы после перезагрузки
+   под курсором не было путаницы, какой язык включён */
+@media (hover: hover) {
+  .lang-switch__btn:hover .lang-switch__code {
+    color: var(--fg);
+  }
+}
+
+/* В шапке кнопка видна с 960px, как «Account»; на телефоне она живёт в мобильном меню */
+.header__lang {
+  display: none;
+}
+
+@media (min-width: 960px) {
+  .header__lang {
+    display: flex;
+    align-items: center;
+  }
+}

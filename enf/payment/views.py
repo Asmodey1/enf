@@ -22,7 +22,7 @@ stripe.api_key=settings.STRIPE_SECRET_KEY
 stripe_endpoint_secret=settings.STRIPE_WEBKOOK_SECRET_KEY
 
 def create_stripe_checkout_session(order, request):
-    cart = CartMixin.get_car(request)
+    cart = CartMixin().get_cart(request)
     line_items=[]
     for item in cart.items.select_related('product', 'product_size'):
         line_items.append({
@@ -31,9 +31,9 @@ def create_stripe_checkout_session(order, request):
                 'product_data':{
                     'name': f'{item.product.name} - {item.product_size.size.name}',
                 },
-                'unit_amount': int(item.product.size.price *100)
+                'unit_amount': int(item.product.price *100)
             },
-            'quanity': item.quantity,
+            'quantity': item.quantity,
         }) 
     try:
         checkout_session = stripe.checkout.Session.create(
@@ -41,7 +41,7 @@ def create_stripe_checkout_session(order, request):
             line_items=line_items,
             mode='payment',
             success_url=request.build_absolute_uri('/payment/stripe/success/') + '?session_id={CHECKOUT_SESSION_ID}',
-            cancel_url=request.build_absolute_uri('/payment/stripe/cancel/') + f'order_id={order.id}',
+            cancel_url=request.build_absolute_uri('/payment/stripe/cancel/') + f'?order_id={order.id}',
             metadata={
                 'order_id': order.id
             }
@@ -59,7 +59,7 @@ def create_stripe_checkout_session(order, request):
 @require_POST
 def stripe_webhook(request):
     payload = request.body
-    sig.header = request.META.get('HTTP_STRIPE_SIGNATURE')
+    sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
     event = None
 
     try:
@@ -112,7 +112,7 @@ def stripe_cancel(request):
         order = get_object_or_404(Order, id=order_id)
         order.status = 'cancelled'
         order.save()
-        context = {'Order': order}
+        context = {'order': order}
         if request.headers.get('HX-Request'):
             return TemplateResponse(request, 'payment/stripe_cancel_content.html', context)
         return  render(request,'payment/stripe_cancel.html', context)

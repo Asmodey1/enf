@@ -1,83 +1,37 @@
+{% extends base_template %}
+{% load i18n %}
+
+{% block title %}{% translate "Log in" %} — {{ site_name }}{% endblock %}
+
 {% block content %}
-<style>
-    .dotted-input {
-        border: none;
-        border-bottom: 2px dotted #d1d5db;
-        background: transparent;
-        outline: none;
-        transition: border-color 0.3s ease;
-    }
-    .dotted-input:focus {
-        border-bottom-color: #374151;
-    }
-    .dotted-input::placeholder {
-        color: #6b7280;
-        font-weight: 500;
-    }
-</style>
+{% firstof request.POST.next request.GET.next as next_url %}
+<section class="auth container">
+    <div class="auth__box">
+        <p class="eyebrow">{% translate "Account" %}</p>
+        <h1 class="auth__title">{% translate "Log in" %}</h1>
+        <p class="auth__lead">{% translate "Welcome back. Enter your email and password." %}</p>
 
-<div class="min-h-screen flex items-center justify-center">
-    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 class="text-2xl font-bold text-gray-900 mb-8 text-center tracking-wide">
-            LOG IN
-        </h1>
-        
-        {% if messages %}
-            <div class="mb-4">
-                {% for message in messages %}
-                    <div class="text-red-500 text-sm text-center">{{ message }}</div>
-                {% endfor %}
-            </div>
-        {% endif %}
-        
-        <form id="loginForm" method="post" class="space-y-6" 
-              hx-post="{% url 'users:login' %}" 
-              hx-target="#main-content">
+        {# Обычная отправка формы, без HTMX: после входа страница перезагрузится и шапка обновится #}
+        <form class="form" method="post" action="{% url 'users:login' %}">
             {% csrf_token %}
-            
-            <div>
-                {{ form.username }}
-                {% if form.username.errors %}
-                    <div class="text-red-500 text-xs mt-1">{{ form.username.errors }}</div>
-                {% endif %}
-            </div>
-            
-            <div>
-                {{ form.password }}
-                {% if form.password.errors %}
-                    <div class="text-red-500 text-xs mt-1">{{ form.password.errors }}</div>
-                {% endif %}
-            </div>
-            
-            <div class="grid grid-cols-2 gap-4 pt-4">
-                <button 
-                    type="submit"
-                    class="bg-black hover:bg-gray-500 text-white font-semibold py-3 px-6 transition-colors duration-200 text-sm tracking-wide"
-                >
-                    LOG IN
-                </button>
-                <a 
-                    href="{% url 'users:register' %}"
-                    hx-get="{% url 'users:register' %}"
-                    hx-target="#main-content"
-                    hx-push-url="true"
-                    class="border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 font-semibold py-3 px-6 transition-colors duration-200 text-sm tracking-wide text-center"
-                >
-                    CREATE AN ACCOUNT
-                </a>
-            </div>
-        </form>
-    </div>
-</div>
+            {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
 
-<script>
-    document.querySelectorAll('.dotted-input').forEach(input => {
-        input.addEventListener('focus', function() {
-            this.parentElement.classList.add('focused');
-        });
-        input.addEventListener('blur', function() {
-            this.parentElement.classList.remove('focused');
-        });
-    });
-</script>
+            {% if form.non_field_errors %}
+                <div class="alert alert--error" role="alert">{{ form.non_field_errors|join:" " }}</div>
+            {% endif %}
+
+            {% include "main/includes/field.html" with field=form.username label=_("Email") %}
+            {% include "main/includes/field.html" with field=form.password label=_("Password") %}
+
+            <button type="submit" class="btn btn--primary btn--block">{% translate "Log in" %}</button>
+        </form>
+
+        <p class="auth__alt">
+            {% translate "New here?" %}
+            <a class="link" href="{% url 'users:register' %}{% if next_url %}?next={{ next_url|urlencode }}{% endif %}"
+               hx-get="{% url 'users:register' %}{% if next_url %}?next={{ next_url|urlencode }}{% endif %}"
+               hx-target="#main-content" hx-push-url="true">{% translate "Create an account" %}</a>
+        </p>
+    </div>
+</section>
 {% endblock %}

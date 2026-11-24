@@ -1,69 +1,48 @@
-<div class="p-6">
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold tracking-tight text-gray-900 uppercase">Filters</h2>
-        <button class="text-gray-600 hover:text-gray-900"
-                onclick="document.getElementById('filter-modal').classList.add('hidden')">
-            ×
-        </button>
-    </div>
+{% load i18n %}{% if current_category %}{% url 'main:catalog' current_category as catalog_url %}{% else %}{% url 'main:catalog_all' as catalog_url %}{% endif %}
+<form class="filters" data-clean-params
+      hx-get="{{ catalog_url }}" hx-target="#main-content" hx-push-url="true">
+    <input type="hidden" name="q" value="{{ filter_params.q }}">
 
-    <form hx-get="{% if current_category %}{% url 'main:catalog' current_category %}{% else %}{% url 'main:catalog_all' %}{% endif %}" 
-          hx-target="#main-content" 
-          hx-push-url="true">
-        <input type="hidden" name="q" value="{{ filter_params.q|default:'' }}">
-        
-        <div class="space-y-6">
-            <!-- Color -->
-            <div>
-                <h3 class="text-sm font-medium text-gray-900 mb-3">COLOR</h3>
-                <input type="text" 
-                       name="color" 
-                       value="{{ filter_params.color|default:'' }}" 
-                       class="w-full border border-gray-300 py-2 px-3 text-sm uppercase focus:outline-none focus:border-gray-900">
+    <div class="filters__body">
+        <fieldset class="filters__group">
+            <legend class="label">{% translate "Size" %}</legend>
+            <div class="chips">
+                <label class="choice">
+                    <input type="radio" name="size" value=""{% if not filter_params.size %} checked{% endif %}>
+                    <span>{% translate "Any" %}</span>
+                </label>
+                {% for size in sizes %}
+                    <label class="choice">
+                        <input type="radio" name="size" value="{{ size.name }}"{% if filter_params.size == size.name %} checked{% endif %}>
+                        <span>{{ size.name }}</span>
+                    </label>
+                {% endfor %}
             </div>
+        </fieldset>
 
-            <!-- Price Range -->
-            <div>
-                <h3 class="text-sm font-medium text-gray-900 mb-3">PRICE RANGE</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="number" 
-                           name="min_price" 
-                           value="{{ filter_params.min_price|default:'' }}" 
-                           placeholder="Min" 
-                           class="border border-gray-300 py-2 px-3 text-sm uppercase focus:outline-none focus:border-gray-900">
-                    <input type="number" 
-                           name="max_price" 
-                           value="{{ filter_params.max_price|default:'' }}" 
-                           placeholder="Max" 
-                           class="border border-gray-300 py-2 px-3 text-sm uppercase focus:outline-none focus:border-gray-900">
+        <div class="field">
+            <label class="field__label" for="filter-color">{% translate "Color" %}</label>
+            <input type="text" id="filter-color" name="color" value="{{ filter_params.color }}" placeholder="{% translate 'e.g. Black' %}" autocomplete="off">
+        </div>
+
+        <fieldset class="filters__group">
+            <legend class="label">{% translate "Price, $" %}</legend>
+            <div class="filters__price">
+                <div class="field">
+                    <input type="number" name="min_price" value="{{ filter_params.min_price }}" min="0" step="any" placeholder="{% translate 'From' %}" aria-label="{% translate 'Minimum price' %}">
+                </div>
+                <span aria-hidden="true">—</span>
+                <div class="field">
+                    <input type="number" name="max_price" value="{{ filter_params.max_price }}" min="0" step="any" placeholder="{% translate 'To' %}" aria-label="{% translate 'Maximum price' %}">
                 </div>
             </div>
+        </fieldset>
+    </div>
 
-            <!-- Size -->
-            <div>
-                <h3 class="text-sm font-medium text-gray-900 mb-3">SIZE</h3>
-                <select name="size" class="w-full border border-gray-300 py-2 px-3 text-sm uppercase focus:outline-none focus:border-gray-900">
-                    <option value="">Any Size</option>
-                    {% for size in sizes %}
-                    <option value="{{ size.name }}" {% if filter_params.size == size.name %}selected{% endif %}>
-                        {{ size.name|upper }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <!-- Form Actions -->
-            <div class="flex justify-between">
-                <button type="button" 
-                        class="border border-gray-300 py-2 px-4 text-sm font-medium uppercase hover:border-gray-900 transition-colors"
-                        onclick="document.getElementById('filter-modal').classList.add('hidden')">
-                    Cancel
-                </button>
-                <button type="submit" 
-                        class="bg-black text-white py-2 px-4 text-sm font-medium uppercase hover:bg-gray-800 transition-colors">
-                    Apply Filters
-                </button>
-            </div>
-        </div>
-    </form>
-</div>
+    <div class="filters__footer">
+        <a class="btn btn--secondary" href="{{ catalog_url }}{% if filter_params.q %}?q={{ filter_params.q|urlencode }}{% endif %}"
+           hx-get="{{ catalog_url }}{% if filter_params.q %}?q={{ filter_params.q|urlencode }}{% endif %}"
+           hx-target="#main-content" hx-push-url="true">{% translate "Reset" %}</a>
+        <button type="submit" class="btn btn--primary">{% translate "Show results" %}</button>
+    </div>
+</form>

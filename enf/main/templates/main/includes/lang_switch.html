@@ -1,0 +1,34 @@
+{% load i18n %}
+{% comment %}
+    Кнопка переключения языка RU ⇄ EN
+    ---------------------------------
+    Одна кнопка: видны оба языка, текущий подчёркнут. Нажатие отправляет обычную
+    POST-форму во встроенную вьюху Django set_language (адрес /i18n/setlang/).
+    Вьюха записывает выбранный язык в cookie «django_language» и делает redirect
+    обратно на страницу из поля next. Дальше LocaleMiddleware на каждом запросе
+    читает эту cookie и включает нужный язык.
+
+    У формы специально нет hx-post: шапка и подвал лежат вне #main-content,
+    поэтому после смены языка страница должна перезагрузиться целиком.
+
+    Куда положить: main/templates/main/includes/lang_switch.html
+    Как вставить:  {% include "main/includes/lang_switch.html" %}
+{% endcomment %}
+{% get_current_language as CURRENT_LANGUAGE %}
+<form class="lang-switch" action="{% url 'set_language' %}" method="post" data-lang-switch>
+    {% csrf_token %}
+    {# Куда вернуться после смены языка. lang_switch.js обновляет это поле перед отправкой #}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+
+    {# value — язык, который включит кнопка: сейчас RU → отправим en, сейчас EN → отправим ru #}
+    <button type="submit" class="lang-switch__btn" name="language"
+        {% if CURRENT_LANGUAGE == 'ru' %}
+            value="en" lang="en" title="Switch to English" aria-label="Switch to English"
+        {% else %}
+            value="ru" lang="ru" title="Переключить на русский" aria-label="Переключить на русский"
+        {% endif %}>
+        <span class="lang-switch__code{% if CURRENT_LANGUAGE == 'ru' %} is-active{% endif %}" aria-hidden="true">RU</span>
+        <span class="lang-switch__sep" aria-hidden="true">/</span>
+        <span class="lang-switch__code{% if CURRENT_LANGUAGE == 'en' %} is-active{% endif %}" aria-hidden="true">EN</span>
+    </button>
+</form>

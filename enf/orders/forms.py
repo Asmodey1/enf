@@ -1,5 +1,6 @@
 from django import forms
 from django.utils.html import strip_tags
+from django.utils.translation import gettext_lazy as _
 
 
 
@@ -8,20 +9,20 @@ class OrderForm(forms.Form):
         max_length=50,
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-3 border border-black rounded-none text-black placeholder-gray-500 focus:outline-none focus:border-black',
-            'placeholder': 'First Name'
+            'placeholder': _('First Name')
         })
     )
     last_name = forms.CharField(
         max_length=50,
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-3 border border-black rounded-none text-black placeholder-gray-500 focus:outline-none focus:border-black',
-            'placeholder': 'Last Name'
+            'placeholder': _('Last Name')
         })
     )
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={
             'class': 'w-full px-4 py-3 border border-black rounded-none text-black placeholder-gray-500 focus:outline-none focus:border-black',
-            'placeholder': 'Email',
+            'placeholder': _('Email'),
             'readonly': 'readonly'
         })
     )
@@ -30,7 +31,7 @@ class OrderForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-3 border border-black rounded-none text-black placeholder-gray-500 focus:outline-none focus:border-black',
-            'placeholder': 'Company (optional)'
+            'placeholder': _('Company (optional)')
         })
     )
     address1 = forms.CharField(
@@ -38,7 +39,7 @@ class OrderForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-3 border border-black rounded-none text-black placeholder-gray-500 focus:outline-none focus:border-black pr-10',
-            'placeholder': 'Address Line 1'
+            'placeholder': _('Address Line 1')
         })
     )
     address2 = forms.CharField(
@@ -46,7 +47,7 @@ class OrderForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-3 border border-black rounded-none text-black placeholder-gray-500 focus:outline-none focus:border-black',
-            'placeholder': 'Address Line 2 (optional)'
+            'placeholder': _('Address Line 2 (optional)')
         })
     )
     city = forms.CharField(
@@ -54,7 +55,7 @@ class OrderForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-3 border border-black rounded-none text-black placeholder-gray-500 focus:outline-none focus:border-black',
-            'placeholder': 'City'
+            'placeholder': _('City')
         })
     )
     country = forms.CharField(
@@ -62,7 +63,7 @@ class OrderForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-3 border border-black rounded-none text-black placeholder-gray-500 focus:outline-none focus:border-black',
-            'placeholder': 'Country'
+            'placeholder': _('Country')
         })
     )
     province = forms.CharField(
@@ -70,7 +71,7 @@ class OrderForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-3 border border-black rounded-none text-black placeholder-gray-500 focus:outline-none focus:border-black',
-            'placeholder': 'State/Province'
+            'placeholder': _('State/Province')
         })
     )
     postal_code = forms.CharField(
@@ -78,7 +79,7 @@ class OrderForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-3 border border-black rounded-none text-black placeholder-gray-500 focus:outline-none focus:border-black',
-            'placeholder': 'Postal Code'
+            'placeholder': _('Postal Code')
         })
     )
     phone = forms.CharField(
@@ -86,7 +87,7 @@ class OrderForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-3 border border-black rounded-none text-black placeholder-gray-500 focus:outline-none focus:border-black pr-10',
-            'placeholder': 'Phone (optional)'
+            'placeholder': _('Phone (optional)')
         })
     )
     def __init__(self, *args, user=None, **kwargs):

@@ -1,0 +1,20 @@
+{% load i18n %}
+<div class="drawer" id="cart-drawer" data-cart-url="{% url 'cart:cart_modal' %}" aria-hidden="true">
+    <div class="drawer__backdrop" data-drawer-close></div>
+
+    <section class="drawer__panel" role="dialog" aria-modal="true" aria-labelledby="cart-title" tabindex="-1">
+        <header class="drawer__header">
+            <h2 class="drawer__title" id="cart-title">
+                {% translate "Cart" %} <span class="muted">(<span data-cart-count>{{ cart_total_items }}</span>)</span>
+            </h2>
+            <button type="button" class="icon-btn" data-drawer-close aria-label="{% translate 'Close cart' %}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+            </button>
+        </header>
+
+        {# Содержимое присылает cart/cart_modal.html; кнопки внутри наследуют hx-target #}
+        <div class="drawer__content" id="cart-content" data-drawer-content hx-target="#cart-content" hx-swap="innerHTML">
+            <p class="drawer__loading">{% translate "Loading…" %}</p>
+        </div>
+    </section>
+</div>

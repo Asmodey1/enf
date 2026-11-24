@@ -1,26 +1,39 @@
-<div class="space-y-3-checkout border-t-checkout pt-4-checkout">
-    <div class="flex-checkout justify-between-checkout text-sm-checkout">
-        <span class="summary-label-checkout">Итого • {{ cart|length }} товар{{ cart|length|pluralize:"а,ов" }}</span>
-        <span class="summary-value-checkout">€{{ total_price }}</span>
-    </div>
-    
-    <div class="flex-checkout justify-between-checkout text-sm-checkout">
-        <span class="summary-label-checkout">Доставка</span>
-        <span class="summary-value-checkout text-gray-600-checkout">Рассчитывается на следующем шаге</span>
-    </div>
-    
-    {% if discount > 0 %}
-        <div class="flex-checkout justify-between-checkout text-sm-checkout">
-            <span class="summary-label-checkout">Скидка ({{ discount }}%)</span>
-            <span class="summary-value-checkout">-€{{ total_price|sub:discounted_price }}</span>
+{% load i18n %}
+<div class="summary">
+    <h2 class="section-title summary__title">{% translate "Order summary" %}</h2>
+
+    <ul class="summary__items">
+        {% for item in cart_items %}
+            <li class="summary-item">
+                <div class="summary-item__media">
+                    {% if item.product.main_image %}
+                        <img src="{{ item.product.main_image.url }}" alt="{{ item.product.name }}" loading="lazy">
+                    {% endif %}
+                    <span class="summary-item__qty" aria-label="{% translate 'Quantity' %}">{{ item.quantity }}</span>
+                </div>
+                <div>
+                    <p class="summary-item__name">{{ item.product.name }}</p>
+                    <p class="summary-item__meta">
+                        {% blocktranslate with size=item.product_size.size.name %}Size {{ size }}{% endblocktranslate %}{% if item.quantity > 1 %} · {% blocktranslate with price=item.product.price|floatformat:"2g" %}${{ price }} each{% endblocktranslate %}{% endif %}
+                    </p>
+                </div>
+                <p class="summary-item__price">${{ item.total_price|floatformat:"2g" }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <dl class="summary__totals">
+        <div class="summary__row">
+            <dt>{% translate "Subtotal" %} · {% blocktranslate count counter=cart.total_items %}{{ counter }} item{% plural %}{{ counter }} items{% endblocktranslate %}</dt>
+            <dd>${{ total_price|floatformat:"2g" }}</dd>
         </div>
-    {% endif %}
-    
-    <div class="flex-checkout justify-between-checkout text-lg-checkout font-medium-checkout pt-3-checkout border-t-checkout">
-        <span class="total-label-checkout">Итого</span>
-        <div class="text-right-checkout">
-            <span class="text-sm-checkout text-gray-600-checkout">EUR </span>
-            <span class="total-value-checkout">€{{ discounted_price }}</span>
+        <div class="summary__row">
+            <dt>{% translate "Shipping" %}</dt>
+            <dd class="muted">{% translate "Calculated at next step" %}</dd>
         </div>
-    </div>
+        <div class="summary__row summary__row--total">
+            <dt>{% translate "Total" %}</dt>
+            <dd><span class="summary__currency">USD</span>${{ total_price|floatformat:"2g" }}</dd>
+        </div>
+    </dl>
 </div>

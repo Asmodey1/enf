@@ -1,0 +1,27 @@
+{% load i18n %}
+<footer class="footer">
+    <div class="container footer__inner">
+        <div class="footer__top">
+            <nav class="footer__nav" aria-label="{% translate 'Shop' %}">
+                <a href="{% url 'main:catalog_all' %}"
+                   hx-get="{% url 'main:catalog_all' %}" hx-target="#main-content" hx-push-url="true">{% translate "Shop all" %}</a>
+                {% for category in nav_categories %}
+                    <a href="{% url 'main:catalog' category.slug %}"
+                       hx-get="{% url 'main:catalog' category.slug %}" hx-target="#main-content" hx-push-url="true">{{ category.name }}</a>
+                {% endfor %}
+            </nav>
+            <nav class="footer__nav" aria-label="{% translate 'Account' %}">
+                <a href="{% url 'users:profile' %}"
+                   hx-get="{% url 'users:profile' %}" hx-target="#main-content" hx-push-url="true">{% translate "Account" %}</a>
+                <a href="#" data-cart-open>{% translate "Cart" %}</a>
+            </nav>
+        </div>
+
+        <p class="footer__mark" aria-hidden="true">{{ site_name }}</p>
+
+        <div class="footer__bottom">
+            <span>© {% now "Y" %} {{ site_name }}</span>
+            <span>{% translate "Secure payments by Stripe" %}</span>
+        </div>
+    </div>
+</footer>

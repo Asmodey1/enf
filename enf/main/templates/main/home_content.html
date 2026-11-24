@@ -1,22 +1,46 @@
-<!-- Home content for HTMX requests -->
-<main class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="text-center py-20">
-        <h2 class="text-4xl font-bold tracking-tight text-gray-900 mb-4">
-            ENFANTS RICHES DÉPRIMÉS
-        </h2>
-        <p class="text-lg text-gray-600 mb-8">
-            Select a category to browse our collection
-        </p>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            {% for category in categories %}
-            <a href="{% url 'main:catalog' category.slug %}" 
-               hx-get="{% url 'main:catalog' category.slug %}" 
-               hx-target="#main-content" 
-               hx-push-url="true"
-               class="block p-8 border border-gray-200 hover:border-gray-300 transition-colors">
-                <h3 class="text-xl font-bold">{{ category.name|upper }}</h3>
-            </a>
-            {% endfor %}
+{% load i18n %}
+{% if is_htmx %}<title>{% include "main/includes/page_title.html" %}</title>{% endif %}
+<section class="hero">
+    <div class="container">
+        <p class="eyebrow">{% translate "Collection" %}</p>
+        <h1 class="hero__title">Enfants riches<br>déprimés</h1>
+        <div class="hero__bottom">
+            <p class="hero__lead">{% translate "Select a category to browse our collection." %}</p>
+            <a class="btn btn--primary" href="{% url 'main:catalog_all' %}"
+               hx-get="{% url 'main:catalog_all' %}" hx-target="#main-content" hx-push-url="true">{% translate "Shop all" %}</a>
         </div>
     </div>
-</main>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section__head">
+            <h2 class="section-title">{% translate "Categories" %}</h2>
+            <a class="text-btn" href="{% url 'main:catalog_all' %}"
+               hx-get="{% url 'main:catalog_all' %}" hx-target="#main-content" hx-push-url="true">{% translate "View all" %}</a>
+        </div>
+
+        {% if categories %}
+            <div class="categories">
+                {% for category in categories %}
+                    {% with cover=category.products.first %}
+                        <a class="category" href="{% url 'main:catalog' category.slug %}"
+                           hx-get="{% url 'main:catalog' category.slug %}" hx-target="#main-content" hx-push-url="true">
+                            <div class="category__media">
+                                {% if cover.main_image %}
+                                    <img src="{{ cover.main_image.url }}" alt="{{ category.name }}" loading="lazy">
+                                {% endif %}
+                            </div>
+                            <div class="category__info">
+                                <span>{{ category.name }}</span>
+                                <span class="category__cta" aria-hidden="true">{% translate "Shop →" %}</span>
+                            </div>
+                        </a>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="muted">{% translate "Categories will appear here soon." %}</p>
+        {% endif %}
+    </div>
+</section>

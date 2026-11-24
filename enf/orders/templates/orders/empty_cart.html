@@ -1,12 +1,18 @@
-<main class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="text-center py-20">
-        <h3 class="text-2xl font-bold text-gray-900 mb-4 uppercase">{{ message }}</h3>
-        <a href="{% url 'main:index' %}" 
-           hx-get="{% url 'main:index' %}" 
-           hx-target="#main-content" 
-           hx-push-url="true"
-           class="bg-black text-white px-6 py-3 text-sm font-medium uppercase hover:bg-gray-800 transition-colors">
-            Continue Shopping
-        </a>
+{% extends base_template %}
+{% load i18n %}
+
+{% block title %}{% translate "Cart" %} — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="result container">
+    <div class="result__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
     </div>
-</main>
+    <h1 class="result__title">{{ message|default:_("Your cart is empty") }}</h1>
+    <p class="result__text">{% translate "Add something you like to the cart, then come back to check out." %}</p>
+    <div class="result__actions">
+        <a class="btn btn--primary" href="{% url 'main:catalog_all' %}"
+           hx-get="{% url 'main:catalog_all' %}" hx-target="#main-content" hx-push-url="true">{% translate "Continue shopping" %}</a>
+    </div>
+</section>
+{% endblock %}

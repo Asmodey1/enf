@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Переключатель языка — демо</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+  <!-- Настоящие стили сайта и кнопки: демо выглядит так же, как будет в проекте -->
+  <link rel="stylesheet" href="../enf/main/static/main/css/style.css">
+  <link rel="stylesheet" href="../enf/main/static/main/css/lang_switch.css">
+  <style>
+    /* Только для этой демо-страницы, в проект не переносится */
+    .demo-bar {
+      padding: 10px var(--gutter);
+      background: var(--fg);
+      color: var(--bg);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .demo-bar code,
+    .demo-log {
+      font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    }
+
+    .demo {
+      display: grid;
+      gap: clamp(28px, 4vw, 48px);
+      padding-block: clamp(32px, 5vw, 64px);
+    }
+
+    .demo__intro {
+      display: grid;
+      gap: 12px;
+      max-width: 560px;
+    }
+
+    .demo__grid {
+      display: grid;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (min-width: 900px) {
+      .demo__grid {
+        grid-template-columns: 300px minmax(0, 1fr);
+      }
+    }
+
+    .demo-card {
+      display: grid;
+      gap: 20px;
+      padding: 24px;
+      border: 1px dashed var(--line-strong);
+    }
+
+    .demo-log {
+      min-height: 300px;
+      margin: 0;
+      padding: 20px;
+      background: var(--surface);
+      font-size: 12px;
+      line-height: 1.75;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .demo-log b {
+      font-weight: 600;
+    }
+
+    .demo-log .muted {
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <!-- Видна, только если style.css сайта не подгрузился (например, в превью без доступа к соседним файлам) -->
+  <div id="demo-no-css" hidden
+       style="padding: 12px 16px; background: #fff4d6; color: #111; border-bottom: 1px solid #e3c770; font: 14px/1.5 system-ui, sans-serif">
+    Стили сайта не подгрузились: этот просмотрщик не видит файл ../enf/main/static/main/css/style.css.
+    Откройте demo.html двойным кликом в Chrome или Edge — там страница будет выглядеть как сайт.
+  </div>
+
+  <div class="demo-bar" role="note">
+    Демо без Django. На сайте текст переведёт сервер через <code>{% translate %}</code>,
+    а здесь его подменяет JS — только чтобы показать результат. Кнопка и её стили настоящие.
+  </div>
+
+  <header class="header">
+    <div class="header__inner">
+      <button type="button" class="icon-btn header__burger" data-demo-burger aria-label="Open menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M3 8.5h18M3 15.5h18"/></svg>
+      </button>
+
+      <a class="brand" href="#" data-path="/">ENFANTS RICHES<br>DÉPRIMÉS</a>
+
+      <nav class="nav" aria-label="Categories">
+        <a class="nav__link" href="#" data-path="/catalog/" data-i18n="shop_all">Shop all</a>
+        <a class="nav__link" href="#" data-path="/catalog/outerwear/" data-i18n="outerwear">Outerwear</a>
+        <a class="nav__link" href="#" data-path="/catalog/tops/" data-i18n="tops">Tops</a>
+      </nav>
+
+      <div class="header__actions">
+        <div class="header__lang">
+          <!-- Ровно то, что выведет lang_switch.html, когда включён английский -->
+          <form class="lang-switch" action="/i18n/setlang/" method="post" data-lang-switch>
+            <input type="hidden" name="csrfmiddlewaretoken" value="demo">
+            <input type="hidden" name="next" value="/">
+            <button type="submit" class="lang-switch__btn" name="language"
+                    value="ru" lang="ru" title="Переключить на русский" aria-label="Переключить на русский">
+              <span class="lang-switch__code" aria-hidden="true">RU</span>
+              <span class="lang-switch__sep" aria-hidden="true">/</span>
+              <span class="lang-switch__code is-active" aria-hidden="true">EN</span>
+            </button>
+          </form>
+        </div>
+
+        <div class="header__search">
+          <button type="button" class="header__link" data-i18n="search">Search</button>
+        </div>
+        <a class="header__link header__account" href="#" data-i18n="log_in">Log in</a>
+        <button type="button" class="header__link"><span data-i18n="cart">Cart</span> (<span>0</span>)</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container demo" id="main-content">
+    <div class="demo__intro">
+      <p class="eyebrow" data-i18n="eyebrow">Collection</p>
+      <h1 class="page-title" data-i18n="title">All products</h1>
+      <p class="muted" data-i18n="lead">Select a category to browse our collection.</p>
+    </div>
+
+    <div class="demo__grid">
+      <section class="demo-card" id="demo-mobile" aria-labelledby="demo-mobile-title">
+        <h2 class="eyebrow" id="demo-mobile-title">Мобильное меню (экран уже 960px)</h2>
+        <div class="menu__secondary">
+          <a class="header__link" href="#" data-i18n="log_in">Log in</a>
+          <form class="lang-switch" action="/i18n/setlang/" method="post" data-lang-switch>
+            <input type="hidden" name="csrfmiddlewaretoken" value="demo">
+            <input type="hidden" name="next" value="/">
+            <button type="submit" class="lang-switch__btn" name="language"
+                    value="ru" lang="ru" title="Переключить на русский" aria-label="Переключить на русский">
+              <span class="lang-switch__code" aria-hidden="true">RU</span>
+              <span class="lang-switch__sep" aria-hidden="true">/</span>
+              <span class="lang-switch__code is-active" aria-hidden="true">EN</span>
+            </button>
+          </form>
+          <button type="button" class="header__link" style="text-align: left"><span data-i18n="cart">Cart</span> (<span>0</span>)</button>
+        </div>
+      </section>
+
+      <section class="demo-card" aria-labelledby="demo-log-title">
+        <h2 class="eyebrow" id="demo-log-title">Что произойдёт на настоящем сайте</h2>
+        <pre class="demo-log" id="demo-log" aria-live="polite"></pre>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // В Django русские строки будут лежать в locale/ru/LC_MESSAGES/django.po:
+      //   msgid "Shop all"  →  msgstr "Все товары"
+      // Английские — это сами msgid из шаблонов, для них перевод не нужен.
+      const MESSAGES = {
+        en: {
+          shop_all: 'Shop all',
+          outerwear: 'Outerwear',
+          tops: 'Tops',
+          search: 'Search',
+          log_in: 'Log in',
+          cart: 'Cart',
+          eyebrow: 'Collection',
+          title: 'All products',
+          lead: 'Select a category to browse our collection.',
+        },
+        ru: {
+          shop_all: 'Все товары',
+          outerwear: 'Верхняя одежда',
+          tops: 'Топы',
+          search: 'Поиск',
+          log_in: 'Войти',
+          cart: 'Корзина',
+          eyebrow: 'Коллекция',
+          title: 'Все товары',
+          lead: 'Выберите категорию, чтобы посмотреть коллекцию.',
+        },
+      };
+
+      let language = 'en';
+      let path = '/';
+
+      const qsa = (selector) => Array.from(document.querySelectorAll(selector));
+      // В лог попадают только строки из этого файла, поэтому innerHTML здесь безопасен
+      const log = document.getElementById('demo-log');
+
+      // То, что на сайте делает шаблон lang_switch.html при каждой загрузке страницы
+      function render() {
+        const target = language === 'ru' ? 'en' : 'ru';
+        const label = target === 'en' ? 'Switch to English' : 'Переключить на русский';
+
+        document.documentElement.lang = language;
+        qsa('[data-i18n]').forEach((el) => {
+          el.textContent = MESSAGES[language][el.dataset.i18n];
+        });
+
+        qsa('[data-lang-switch]').forEach((form) => {
+          const button = form.querySelector('button[name="language"]');
+          button.value = target;
+          button.lang = target;
+          button.title = label;
+          button.setAttribute('aria-label', label);
+          form.querySelector('input[name="next"]').value = path;
+          form.querySelectorAll('.lang-switch__code').forEach((code) => {
+            code.classList.toggle('is-active', code.textContent.trim().toLowerCase() === language);
+          });
+        });
+
+        qsa('.nav [data-path]').forEach((link) => {
+          link.classList.toggle('is-active', link.dataset.path === path);
+        });
+      }
+
+      function showIdle(navigated) {
+        const lines = [
+          '<b>Текущая страница:</b> ' + path,
+          '',
+          navigated
+            ? 'Вы перешли сюда «как через hx-get»: адрес сменился, а шапка не перерисовывалась.\nПоэтому lang_switch.js перед отправкой сам подставит в next этот адрес.'
+            : '<span class="muted">Пункты меню в шапке меняют адрес, как HTMX-переходы на сайте.</span>',
+          '',
+          'Нажмите RU / EN — здесь появится, что отправит кнопка и что ответит Django.',
+        ];
+        log.innerHTML = lines.join('\n');
+      }
+
+      function showRequest(from, to) {
+        const t = MESSAGES[to];
+        const examples = [
+          ['Shop all', t.shop_all],
+          ['Log in', t.log_in],
+          ['Cart', t.cart],
+        ].map(([msgid, text]) => '   {% translate "' + msgid + '" %}' + ' '.repeat(10 - msgid.length) + '→ «' + text + '»');
+
+        const lines = [
+          '<b>0. lang_switch.js перед отправкой</b>',
+          '   next ← ' + path + '   <span class="muted">(адрес из строки браузера)</span>',
+          '   localStorage: удалён htmx-history-cache',
+          '',
+          '<b>1. Браузер → POST /i18n/setlang/</b>',
+          '   csrfmiddlewaretoken=•••',
+          '   language=' + to,
+          '   next=' + path,
+          '',
+          '<b>2. Django, вьюха set_language → 302 Found</b>',
+          '   Set-Cookie: django_language=' + to + '; Max-Age=31536000; Path=/',
+          '   Location: ' + path,
+          '',
+          '<b>3. Браузер → GET ' + path + '</b>',
+          '   Cookie: django_language=' + to,
+          '   LocaleMiddleware → translation.activate("' + to + '")',
+          '',
+          '<b>4. Шаблоны рендерятся на языке «' + to + '»</b>',
+          ...examples,
+          to === 'ru'
+            ? '   <span class="muted">(переводы из locale/ru/LC_MESSAGES/django.mo)</span>'
+            : '   <span class="muted">(для английского .po не нужен — это исходные строки)</span>',
+          '',
+          '<span class="muted">Было: ' + from + ' → стало: ' + to + '. Нажмите ещё раз, чтобы вернуть.</span>',
+        ];
+        log.innerHTML = lines.join('\n');
+      }
+
+      // Нажатие кнопки: на сайте здесь уйдёт форма и страница перезагрузится,
+      // в демо форму не отправляем, а показываем, что произошло бы
+      document.addEventListener('submit', (event) => {
+        const form = event.target.closest('[data-lang-switch]');
+        if (!form) return;
+        event.preventDefault();
+
+        const from = language;
+        language = form.querySelector('button[name="language"]').value;
+        render();
+        showRequest(from, language);
+      });
+
+      document.addEventListener('click', (event) => {
+        const link = event.target.closest('[data-path]');
+        if (link) {
+          event.preventDefault();
+          path = link.dataset.path;
+          render();
+          showIdle(true);
+          return;
+        }
+
+        if (event.target.closest('[data-demo-burger]')) {
+          document.getElementById('demo-mobile').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+
+      // Токен --fg задаёт style.css сайта; если его нет, стили не подгрузились
+      if (!getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()) {
+        document.getElementById('demo-no-css').hidden = false;
+      }
+
+      render();
+      showIdle(false);
+    })();
+  </script>
+</body>
+</html>

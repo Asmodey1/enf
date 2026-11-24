@@ -1,0 +1,711 @@
+# Тексты шаблонов и Python-кода
+# Русский перевод магазина. Английский текст в коде — это msgid.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: enf\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-08 03:30+0000\n"
+"PO-Revision-Date: 2026-11-08 03:30+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
+
+#: cart/templates/cart/cart_drawer.html:10
+msgid "Close cart"
+msgstr "Закрыть корзину"
+
+#: cart/templates/cart/cart_drawer.html:17
+msgid "Loading…"
+msgstr "Загрузка…"
+
+#: cart/templates/cart/cart_drawer.html:8 main/templates/main/includes/footer.html:16 main/templates/main/includes/header.html:42 main/templates/main/includes/mobile_menu.html:43 orders/templates/orders/checkout_content.html:13 orders/templates/orders/empty_cart.html:4
+msgid "Cart"
+msgstr "Корзина"
+
+#: cart/templates/cart/cart_empty.html:4 orders/templates/orders/empty_cart.html:11 orders/views.py:33 orders/views.py:57
+msgid "Your cart is empty"
+msgstr "Ваша корзина пуста"
+
+#: cart/templates/cart/cart_empty.html:5
+msgid "Add something you like — it will appear here."
+msgstr "Добавьте то, что понравилось, — товары появятся здесь."
+
+#: cart/templates/cart/cart_empty.html:7 orders/templates/orders/empty_cart.html:15 payment/templates/payment/stripe_success_content.html:20
+msgid "Continue shopping"
+msgstr "Продолжить покупки"
+
+#: cart/templates/cart/cart_item.html:14 orders/templates/orders/partials/summary.html:17
+#, python-format
+msgid "Size %(size)s"
+msgstr "Размер %(size)s"
+
+#: cart/templates/cart/cart_item.html:21
+msgid "Decrease quantity"
+msgstr "Уменьшить количество"
+
+#: cart/templates/cart/cart_item.html:24 orders/templates/orders/partials/summary.html:12
+msgid "Quantity"
+msgstr "Количество"
+
+#: cart/templates/cart/cart_item.html:25
+msgid "Increase quantity"
+msgstr "Увеличить количество"
+
+#: cart/templates/cart/cart_item.html:29
+msgid "Remove"
+msgstr "Удалить"
+
+#: cart/templates/cart/cart_summary.html:11
+msgid "Remove all items from the cart?"
+msgstr "Удалить все товары из корзины?"
+
+#: cart/templates/cart/cart_summary.html:11
+msgid "Clear cart"
+msgstr "Очистить корзину"
+
+#: cart/templates/cart/cart_summary.html:4 orders/templates/orders/partials/summary.html:27
+msgid "Subtotal"
+msgstr "Сумма"
+
+#: cart/templates/cart/cart_summary.html:7
+msgid "Shipping is calculated at checkout."
+msgstr "Стоимость доставки рассчитывается при оформлении заказа."
+
+#: cart/templates/cart/cart_summary.html:9
+msgctxt "button"
+msgid "Checkout"
+msgstr "Оформить заказ"
+
+#: cart/views.py:102
+#, python-format
+msgid "%(product)s added to cart"
+msgstr "Товар «%(product)s» добавлен в корзину"
+
+#: cart/views.py:118
+msgid "Invalid quantity"
+msgstr "Некорректное количество"
+
+#: cart/views.py:168
+msgid "Item not found"
+msgstr "Товар не найден"
+
+#: cart/views.py:195
+msgid "Cart cleared"
+msgstr "Корзина очищена"
+
+#: cart/views.py:54
+msgid "Invalid form data"
+msgstr "Некорректные данные формы"
+
+#: cart/views.py:69
+msgid "No sizes available for this product"
+msgstr "У этого товара нет доступных размеров"
+
+#: cart/views.py:74 cart/views.py:126
+#, python-format
+msgid "Only %(count)s items available"
+msgstr "Доступно только %(count)s шт."
+
+#: cart/views.py:85
+#, python-format
+msgid "Cannot add %(quantity)s items. Only %(available)s more items can be added"
+msgstr "Нельзя добавить %(quantity)s шт.: можно добавить ещё только %(available)s шт."
+
+#: main/templates/main/base.html:21
+msgid "Skip to content"
+msgstr "Перейти к содержимому"
+
+#: main/templates/main/catalog.html:10
+msgid "Catalog"
+msgstr "Каталог"
+
+#: main/templates/main/catalog.html:16
+msgid "All products"
+msgstr "Все товары"
+
+#: main/templates/main/catalog.html:20
+#, python-format
+msgid "Search results for “%(q)s”"
+msgstr "Результаты поиска по запросу «%(q)s»"
+
+#: main/templates/main/catalog.html:24 main/templates/main/home_content.html:18 main/templates/main/includes/header.html:13
+msgid "Categories"
+msgstr "Категории"
+
+#: main/templates/main/catalog.html:26
+msgid "All"
+msgstr "Все"
+
+#: main/templates/main/catalog.html:34 orders/templates/orders/partials/summary.html:27
+#, python-format
+msgid "%(counter)s item"
+msgid_plural "%(counter)s items"
+msgstr[0] "%(counter)s товар"
+msgstr[1] "%(counter)s товара"
+msgstr[2] "%(counter)s товаров"
+msgstr[3] "%(counter)s товара"
+
+#: main/templates/main/catalog.html:39 main/templates/main/filter_modal.html:45
+msgid "Reset"
+msgstr "Сбросить"
+
+#: main/templates/main/catalog.html:45 main/templates/main/catalog.html:79
+msgid "Filters"
+msgstr "Фильтры"
+
+#: main/templates/main/catalog.html:46
+msgid "Filters applied"
+msgstr "Фильтры применены"
+
+#: main/templates/main/catalog.html:59
+msgid "Nothing found"
+msgstr "Ничего не найдено"
+
+#: main/templates/main/catalog.html:6 main/templates/main/product_detail.html:4 orders/templates/orders/checkout_content.html:9
+msgid "Breadcrumb"
+msgstr "Навигационная цепочка"
+
+#: main/templates/main/catalog.html:62
+msgid "Try another search or reset the filters."
+msgstr "Попробуйте другой запрос или сбросьте фильтры."
+
+#: main/templates/main/catalog.html:64
+msgid "No products in this category yet."
+msgstr "В этой категории пока нет товаров."
+
+#: main/templates/main/catalog.html:66
+msgid "No products available at the moment."
+msgstr "Сейчас нет товаров в наличии."
+
+#: main/templates/main/catalog.html:70
+msgid "Show all products"
+msgstr "Показать все товары"
+
+#: main/templates/main/catalog.html:8 main/templates/main/product_detail.html:6 orders/templates/orders/checkout_content.html:11
+msgid "Home"
+msgstr "Главная"
+
+#: main/templates/main/catalog.html:80
+msgid "Close filters"
+msgstr "Закрыть фильтры"
+
+#: main/templates/main/filter_modal.html:12
+msgid "Any"
+msgstr "Любой"
+
+#: main/templates/main/filter_modal.html:24
+msgid "Color"
+msgstr "Цвет"
+
+#: main/templates/main/filter_modal.html:25
+msgid "e.g. Black"
+msgstr "например, Black"
+
+#: main/templates/main/filter_modal.html:29
+msgid "Price, $"
+msgstr "Цена, $"
+
+#: main/templates/main/filter_modal.html:32
+msgid "From"
+msgstr "От"
+
+#: main/templates/main/filter_modal.html:32
+msgid "Minimum price"
+msgstr "Минимальная цена"
+
+#: main/templates/main/filter_modal.html:36
+msgid "To"
+msgstr "До"
+
+#: main/templates/main/filter_modal.html:36
+msgid "Maximum price"
+msgstr "Максимальная цена"
+
+#: main/templates/main/filter_modal.html:46
+msgid "Show results"
+msgstr "Показать"
+
+#: main/templates/main/filter_modal.html:8 main/templates/main/product_detail.html:47
+msgid "Size"
+msgstr "Размер"
+
+#: main/templates/main/home_content.html:10 main/templates/main/includes/footer.html:7 main/templates/main/includes/header.html:16 main/templates/main/includes/mobile_menu.html:23 main/templates/main/includes/page_title.html:1
+msgid "Shop all"
+msgstr "Все товары"
+
+#: main/templates/main/home_content.html:20
+msgid "View all"
+msgstr "Смотреть все"
+
+#: main/templates/main/home_content.html:36
+msgid "Shop →"
+msgstr "Смотреть →"
+
+#: main/templates/main/home_content.html:43
+msgid "Categories will appear here soon."
+msgstr "Скоро здесь появятся категории."
+
+#: main/templates/main/home_content.html:5
+msgid "Collection"
+msgstr "Коллекция"
+
+#: main/templates/main/home_content.html:8
+msgid "Select a category to browse our collection."
+msgstr "Выберите категорию, чтобы посмотреть коллекцию."
+
+#: main/templates/main/includes/footer.html:13 main/templates/main/includes/footer.html:15 main/templates/main/includes/header.html:35 main/templates/main/includes/mobile_menu.html:36 users/templates/users/login.html:10 users/templates/users/profile.html:4 users/templates/users/profile.html:14 users/templates/users/register.html:10
+msgid "Account"
+msgstr "Аккаунт"
+
+#: main/templates/main/includes/footer.html:24
+msgid "Secure payments by Stripe"
+msgstr "Безопасная оплата через Stripe"
+
+#: main/templates/main/includes/footer.html:5
+msgid "Shop"
+msgstr "Магазин"
+
+#: main/templates/main/includes/header.html:38 main/templates/main/includes/mobile_menu.html:39 users/templates/users/login.html:4 users/templates/users/login.html:11 users/templates/users/login.html:26 users/templates/users/register.html:37
+msgid "Log in"
+msgstr "Войти"
+
+#: main/templates/main/includes/header.html:4
+msgid "Open menu"
+msgstr "Открыть меню"
+
+#: main/templates/main/includes/mobile_menu.html:5
+msgid "Menu"
+msgstr "Меню"
+
+#: main/templates/main/includes/mobile_menu.html:8
+msgid "Close menu"
+msgstr "Закрыть меню"
+
+#: main/templates/main/product_detail.html:100 users/templates/users/profile.html:41
+msgid "You may also like"
+msgstr "Вам может понравиться"
+
+#: main/templates/main/product_detail.html:21 main/templates/main/includes/product_card.html:13
+msgid "No image"
+msgstr "Нет фото"
+
+#: main/templates/main/product_detail.html:25
+#, python-format
+msgid "%(name)s, photo %(number)s"
+msgstr "%(name)s, фото %(number)s"
+
+#: main/templates/main/product_detail.html:63
+msgid "No sizes available"
+msgstr "Нет доступных размеров"
+
+#: main/templates/main/product_detail.html:67
+msgid "Add to cart"
+msgstr "Добавить в корзину"
+
+#: main/templates/main/product_detail.html:67
+msgid "Sold out"
+msgstr "Нет в наличии"
+
+#: main/templates/main/product_detail.html:75
+msgctxt "product"
+msgid "Details"
+msgstr "Описание"
+
+#: main/templates/main/product_detail.html:80
+msgid "No description yet."
+msgstr "Описания пока нет."
+
+#: main/templates/main/product_detail.html:85
+msgid "Care"
+msgstr "Уход"
+
+#: main/templates/main/product_detail.html:87
+msgid "Professional dry clean only"
+msgstr "Только профессиональная химчистка"
+
+#: main/templates/main/product_detail.html:88
+msgid "Do not bleach"
+msgstr "Не отбеливать"
+
+#: main/templates/main/product_detail.html:89
+msgid "Iron at low temperature"
+msgstr "Гладить при низкой температуре"
+
+#: main/templates/main/search_button.html:4 main/templates/main/search_input.html:4 main/templates/main/includes/mobile_menu.html:17
+msgid "Search"
+msgstr "Поиск"
+
+#: main/templates/main/search_input.html:5 main/templates/main/includes/mobile_menu.html:17
+msgid "Search products"
+msgstr "Поиск товаров"
+
+#: main/templates/main/search_input.html:8
+msgid "Close search"
+msgstr "Закрыть поиск"
+
+#: orders/forms.py:12
+msgid "First Name"
+msgstr "Имя"
+
+#: orders/forms.py:19
+msgid "Last Name"
+msgstr "Фамилия"
+
+#: orders/forms.py:42
+msgid "Address Line 1"
+msgstr "Адрес, строка 1"
+
+#: orders/forms.py:50
+msgid "Address Line 2 (optional)"
+msgstr "Адрес, строка 2 (необязательно)"
+
+#: orders/forms.py:74
+msgid "State/Province"
+msgstr "Область / регион"
+
+#: orders/forms.py:82
+msgid "Postal Code"
+msgstr "Почтовый индекс"
+
+#: orders/models.py:10
+msgid "Pending"
+msgstr "Ожидает оплаты"
+
+#: orders/models.py:11
+msgid "Processing"
+msgstr "В обработке"
+
+#: orders/models.py:12
+msgid "Shipped"
+msgstr "Отправлен"
+
+#: orders/models.py:13
+msgid "Delivered"
+msgstr "Доставлен"
+
+#: orders/models.py:14
+msgid "Cancelled"
+msgstr "Отменён"
+
+#: orders/templates/orders/checkout_content.html:33
+msgid "Contact"
+msgstr "Контакты"
+
+#: orders/templates/orders/checkout_content.html:34 users/templates/users/login.html:23 users/templates/users/register.html:26 users/templates/users/partials/account_details.html:8 users/templates/users/partials/edit_account_details.html:15 orders/forms.py:25 users/forms.py:47
+msgid "Email"
+msgstr "Электронная почта"
+
+#: orders/templates/orders/checkout_content.html:38
+msgid "Shipping address"
+msgstr "Адрес доставки"
+
+#: orders/templates/orders/checkout_content.html:4 orders/templates/orders/checkout_content.html:15 orders/templates/orders/checkout_content.html:17
+msgid "Checkout"
+msgstr "Оформление заказа"
+
+#: orders/templates/orders/checkout_content.html:40 users/templates/users/register.html:23 users/templates/users/partials/edit_account_details.html:11
+msgid "First name"
+msgstr "Имя"
+
+#: orders/templates/orders/checkout_content.html:41 users/templates/users/register.html:24 users/templates/users/partials/edit_account_details.html:12
+msgid "Last name"
+msgstr "Фамилия"
+
+#: orders/templates/orders/checkout_content.html:43
+msgid "Country / region"
+msgstr "Страна / регион"
+
+#: orders/templates/orders/checkout_content.html:44 users/templates/users/partials/account_details.html:16 users/templates/users/partials/edit_account_details.html:19
+msgid "Address"
+msgstr "Адрес"
+
+#: orders/templates/orders/checkout_content.html:45
+msgid "Apartment, suite, etc. (optional)"
+msgstr "Квартира, офис и т. п. (необязательно)"
+
+#: orders/templates/orders/checkout_content.html:47 users/templates/users/partials/edit_account_details.html:22 orders/forms.py:58
+msgid "City"
+msgstr "Город"
+
+#: orders/templates/orders/checkout_content.html:48 users/templates/users/partials/edit_account_details.html:23
+msgid "State / province"
+msgstr "Область / регион"
+
+#: orders/templates/orders/checkout_content.html:49 users/templates/users/partials/edit_account_details.html:24
+msgid "Postal code"
+msgstr "Почтовый индекс"
+
+#: orders/templates/orders/checkout_content.html:52 orders/forms.py:90
+msgid "Phone (optional)"
+msgstr "Телефон (необязательно)"
+
+#: orders/templates/orders/checkout_content.html:53 orders/forms.py:34
+msgid "Company (optional)"
+msgstr "Компания (необязательно)"
+
+#: orders/templates/orders/checkout_content.html:58
+msgid "Payment"
+msgstr "Оплата"
+
+#: orders/templates/orders/checkout_content.html:62
+msgid "Credit or debit card"
+msgstr "Банковская карта"
+
+#: orders/templates/orders/checkout_content.html:63
+msgid "Secure payment via Stripe"
+msgstr "Безопасная оплата через Stripe"
+
+#: orders/templates/orders/checkout_content.html:69
+#, python-format
+msgid "Pay $%(amount)s"
+msgstr "Оплатить $%(amount)s"
+
+#: orders/templates/orders/checkout_content.html:70
+msgid "You will be redirected to Stripe to complete the payment."
+msgstr "Для оплаты вы перейдёте на страницу Stripe."
+
+#: orders/templates/orders/checkout_content.html:73 orders/templates/orders/partials/summary.html:3
+msgid "Order summary"
+msgstr "Ваш заказ"
+
+#: orders/templates/orders/empty_cart.html:12
+msgid "Add something you like to the cart, then come back to check out."
+msgstr "Добавьте в корзину то, что понравилось, и возвращайтесь к оформлению."
+
+#: orders/templates/orders/partials/summary.html:17
+#, python-format
+msgid "$%(price)s each"
+msgstr "$%(price)s за шт."
+
+#: orders/templates/orders/partials/summary.html:31
+msgid "Shipping"
+msgstr "Доставка"
+
+#: orders/templates/orders/partials/summary.html:32
+msgid "Calculated at next step"
+msgstr "Рассчитывается на следующем шаге"
+
+#: orders/templates/orders/partials/summary.html:35
+msgid "Total"
+msgstr "Итого"
+
+#: orders/views.py:127
+#, python-format
+msgid "Payment processing error: %(error)s"
+msgstr "Ошибка при оплате: %(error)s"
+
+#: orders/views.py:139
+msgid "Please correct the errors in the form."
+msgstr "Исправьте ошибки в форме."
+
+#: orders/views.py:66
+msgid "Please select a valid payment provider (Stripe or Heleket)."
+msgstr "Выберите способ оплаты (Stripe или Heleket)."
+
+#: payment/templates/payment/stripe_cancel_content.html:11 payment/templates/payment/stripe_success_content.html:11 users/templates/users/partials/order_history.html:8
+#, python-format
+msgid "Order #%(id)s"
+msgstr "Заказ №%(id)s"
+
+#: payment/templates/payment/stripe_cancel_content.html:13
+msgid "The order was cancelled and you have not been charged."
+msgstr "Заказ отменён, деньги не списаны."
+
+#: payment/templates/payment/stripe_cancel_content.html:16
+msgid "Back to shop"
+msgstr "Вернуться в магазин"
+
+#: payment/templates/payment/stripe_cancel_content.html:4 payment/templates/payment/stripe_cancel_content.html:12
+msgid "Payment cancelled"
+msgstr "Оплата отменена"
+
+#: payment/templates/payment/stripe_success_content.html:12
+msgid "Thank you for your order"
+msgstr "Спасибо за заказ"
+
+#: payment/templates/payment/stripe_success_content.html:14
+#, python-format
+msgid "Your order has been placed. We'll send a confirmation to <strong>%(email)s</strong> soon."
+msgstr "Заказ оформлен. Скоро мы отправим подтверждение на <strong>%(email)s</strong>."
+
+#: payment/templates/payment/stripe_success_content.html:21
+msgid "My orders"
+msgstr "Мои заказы"
+
+#: payment/templates/payment/stripe_success_content.html:4
+msgid "Thank you"
+msgstr "Спасибо"
+
+#: users/forms.py:100
+msgid "ADDRESS LINE 2"
+msgstr "АДРЕС, СТРОКА 2"
+
+#: users/forms.py:101
+msgid "CITY"
+msgstr "ГОРОД"
+
+#: users/forms.py:102
+msgid "COUNTRY"
+msgstr "СТРАНА"
+
+#: users/forms.py:103
+msgid "PROVINCE"
+msgstr "ОБЛАСТЬ"
+
+#: users/forms.py:104
+msgid "POSTAL CODE"
+msgstr "ПОЧТОВЫЙ ИНДЕКС"
+
+#: users/forms.py:14 users/forms.py:47 users/forms.py:86
+msgid "EMAIL"
+msgstr "ЭЛ. ПОЧТА"
+
+#: users/forms.py:15 users/forms.py:77
+msgid "FIRST NAME"
+msgstr "ИМЯ"
+
+#: users/forms.py:16 users/forms.py:82
+msgid "LAST NAME"
+msgstr "ФАМИЛИЯ"
+
+#: users/forms.py:19 users/forms.py:50
+msgid "PASSWORD"
+msgstr "ПАРОЛЬ"
+
+#: users/forms.py:23
+msgid "CONFIRM PASSWORD"
+msgstr "ПОВТОРИТЕ ПАРОЛЬ"
+
+#: users/forms.py:35 users/forms.py:110
+msgid "This email is already in use."
+msgstr "Этот email уже используется."
+
+#: users/forms.py:61
+msgid "Invalid email or password."
+msgstr "Неверный email или пароль."
+
+#: users/forms.py:63
+msgid "This account is inactive."
+msgstr "Этот аккаунт отключён."
+
+#: users/forms.py:71
+msgid "Enter a valid phone number."
+msgstr "Введите корректный номер телефона."
+
+#: users/forms.py:72
+msgid "PHONE NUMBER"
+msgstr "НОМЕР ТЕЛЕФОНА"
+
+#: users/forms.py:98
+msgid "COMPANY"
+msgstr "КОМПАНИЯ"
+
+#: users/forms.py:99
+msgid "ADDRESS LINE 1"
+msgstr "АДРЕС, СТРОКА 1"
+
+#: users/templates/users/login.html:12
+msgid "Welcome back. Enter your email and password."
+msgstr "С возвращением! Введите email и пароль."
+
+#: users/templates/users/login.html:24 users/templates/users/register.html:27 users/forms.py:49
+msgid "Password"
+msgstr "Пароль"
+
+#: users/templates/users/login.html:30
+msgid "New here?"
+msgstr "Впервые у нас?"
+
+#: users/templates/users/login.html:33 users/templates/users/register.html:4 users/templates/users/register.html:11 users/templates/users/register.html:30
+msgid "Create an account"
+msgstr "Создать аккаунт"
+
+#: users/templates/users/partials/account_details.html:12 users/templates/users/partials/edit_account_details.html:16
+msgid "Phone"
+msgstr "Телефон"
+
+#: users/templates/users/partials/account_details.html:24
+msgid "No address yet — add one for faster checkout."
+msgstr "Адрес пока не указан — добавьте его, чтобы быстрее оформлять заказы."
+
+#: users/templates/users/partials/account_details.html:31
+msgid "Edit details"
+msgstr "Изменить данные"
+
+#: users/templates/users/partials/account_details.html:4
+msgid "Name"
+msgstr "Имя"
+
+#: users/templates/users/partials/edit_account_details.html:18
+msgid "Company"
+msgstr "Компания"
+
+#: users/templates/users/partials/edit_account_details.html:20
+msgid "Apartment, suite, etc."
+msgstr "Квартира, офис и т. п."
+
+#: users/templates/users/partials/edit_account_details.html:26 orders/forms.py:66
+msgid "Country"
+msgstr "Страна"
+
+#: users/templates/users/partials/edit_account_details.html:29
+msgid "Save"
+msgstr "Сохранить"
+
+#: users/templates/users/partials/edit_account_details.html:31
+msgid "Cancel"
+msgstr "Отмена"
+
+#: users/templates/users/partials/order_history.html:23
+msgid "You haven't placed any orders yet."
+msgstr "Вы ещё не сделали ни одного заказа."
+
+#: users/templates/users/partials/order_history.html:25
+msgid "Start shopping"
+msgstr "Перейти к покупкам"
+
+#: users/templates/users/profile.html:10
+#, python-format
+msgid "Hi, %(name)s"
+msgstr "Здравствуйте, %(name)s"
+
+#: users/templates/users/profile.html:15
+msgid "Details"
+msgstr "Данные"
+
+#: users/templates/users/profile.html:16
+msgid "Orders"
+msgstr "Заказы"
+
+#: users/templates/users/profile.html:19
+msgid "Log out"
+msgstr "Выйти"
+
+#: users/templates/users/profile.html:25
+msgid "Account details"
+msgstr "Личные данные"
+
+#: users/templates/users/profile.html:32
+msgid "Order history"
+msgstr "История заказов"
+
+#: users/templates/users/profile.html:9
+msgid "My account"
+msgstr "Мой аккаунт"
+
+#: users/templates/users/register.html:12
+msgid "Save your details for faster checkout and keep track of your orders."
+msgstr "Сохраните свои данные, чтобы быстрее оформлять заказы и следить за ними."
+
+#: users/templates/users/register.html:28
+msgid "Confirm password"
+msgstr "Повторите пароль"
+
+#: users/templates/users/register.html:34
+msgid "Already have an account?"
+msgstr "Уже есть аккаунт?"

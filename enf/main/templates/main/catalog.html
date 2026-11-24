@@ -1,90 +1,87 @@
-{% block content %}
-<main class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Breadcrumb and Filters -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 sm:mb-12 space-y-4 sm:space-y-0">
-        <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 uppercase">
+{% load i18n %}{% if current_category %}{% url 'main:catalog' current_category as catalog_url %}{% else %}{% url 'main:catalog_all' as catalog_url %}{% endif %}
+{% firstof filter_params.color filter_params.size filter_params.min_price filter_params.max_price as active_filter %}
+{% if is_htmx %}<title>{% include "main/includes/page_title.html" %}</title>{% endif %}
+<section class="catalog container">
+    <header class="catalog__head">
+        <nav class="crumbs" aria-label="{% translate 'Breadcrumb' %}">
+            <a href="{% url 'main:index' %}"
+               hx-get="{% url 'main:index' %}" hx-target="#main-content" hx-push-url="true">{% translate "Home" %}</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">{% translate "Catalog" %}</span>
+        </nav>
+        <h1 class="page-title">
             {% if current_category %}
-                {{ current_category|upper }} > NEW ARRIVALS
+                {% for category in categories %}{% if category.slug == current_category %}{{ category.name }}{% endif %}{% endfor %}
             {% else %}
-                ALL PRODUCTS
+                {% translate "All products" %}
             {% endif %}
-        </h2>
-        <button class="bg-black text-white px-4 py-2 text-sm font-medium uppercase hover:bg-gray-800 transition-colors w-full sm:w-auto" 
-                hx-get="{% if current_category %}{% url 'main:catalog' current_category %}{% else %}{% url 'main:catalog_all' %}{% endif %}?show_filters=true&color={{ filter_params.color|urlencode }}&min_price={{ filter_params.min_price|urlencode }}&max_price={{ filter_params.max_price|urlencode }}&size={{ filter_params.size|urlencode }}" 
-                hx-target="#filter-modal-content"
-                hx-swap="innerHTML"
-                hx-on::after-request="document.getElementById('filter-modal').classList.remove('hidden')">
-            FILTERS
-        </button>
-    </div>
+        </h1>
+        {% if filter_params.q %}
+            <p class="muted">{% blocktranslate with q=filter_params.q %}Search results for “{{ q }}”{% endblocktranslate %}</p>
+        {% endif %}
+    </header>
 
-    <!-- Filter Modal Container -->
-    <div id="filter-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-        <div id="filter-modal-content" class="bg-white rounded-none max-w-md w-full"></div>
-    </div>
-
-    <!-- Product Grid -->
-    {% if products %}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
-        {% for product in products %}
-        <div class="product-card group cursor-pointer" 
-             hx-get="{% url 'main:product_detail' product.slug %}"
-             hx-target="#main-content"
-             hx-push-url="true">
-            <div class="aspect-square overflow-hidden bg-gray-100 mb-4">
-                {% if product.main_image %}
-                    <img src="{{ product.main_image.url }}" 
-                         alt="{{ product.name }}" 
-                         class="product-image w-full h-full object-cover">
-                {% else %}
-                    <div class="product-image w-full h-full bg-gray-200 flex items-center justify-center">
-                        <span class="text-gray-400 text-sm">No Image</span>
-                    </div>
-                {% endif %}
-            </div>
-            <div class="text-center">
-                <h3 class="text-sm font-medium text-gray-900 mb-1 uppercase">{{ product.name }}</h3>
-                <p class="text-sm text-gray-600 mb-1 uppercase">{{ product.color }}</p>
-                <p class="text-sm font-medium">${{ product.price }}</p>
-            </div>
-        </div>
+    <nav class="chips catalog__chips" aria-label="{% translate 'Categories' %}">
+        <a class="chip{% if not current_category %} is-active{% endif %}" href="{% url 'main:catalog_all' %}"
+           hx-get="{% url 'main:catalog_all' %}" hx-target="#main-content" hx-push-url="true">{% translate "All" %}</a>
+        {% for category in categories %}
+            <a class="chip{% if category.slug == current_category %} is-active{% endif %}" href="{% url 'main:catalog' category.slug %}"
+               hx-get="{% url 'main:catalog' category.slug %}" hx-target="#main-content" hx-push-url="true">{{ category.name }}</a>
         {% endfor %}
-    </div>
-    {% else %}
-    <div class="text-center py-20">
-        <h3 class="text-2xl font-bold text-gray-900 mb-4 uppercase">No products found</h3>
-        <p class="text-gray-600 mb-8">
-            {% if current_category %}
-                No products available in this category yet.
-            {% else %}
-                No products available at the moment.
-            {% endif %}
-        </p>
-        <a href="{% url 'main:index' %}" 
-           hx-get="{% url 'main:index' %}" 
-           hx-target="#main-content" 
-           hx-push-url="true"
-           class="bg-black text-white px-6 py-3 text-sm font-medium uppercase hover:bg-gray-800 transition-colors">
-            Back to Home
-        </a>
-    </div>
-    {% endif %}
-</main>
+    </nav>
 
-<script>
-    // Product card hover and click functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const productCards = document.querySelectorAll('.product-card');
-        productCards.forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-2px)';
-                this.style.transition = 'transform 0.3s ease';
-            });
-            
-            card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0)';
-            });
-        });
-    });
-</script>
-{% endblock %}
+    <div class="toolbar">
+        <p class="toolbar__count">{% blocktranslate count counter=products|length %}{{ counter }} item{% plural %}{{ counter }} items{% endblocktranslate %}</p>
+        <div class="toolbar__actions">
+            {% if active_filter %}
+                <a class="text-btn" href="{{ catalog_url }}{% if filter_params.q %}?q={{ filter_params.q|urlencode }}{% endif %}"
+                   hx-get="{{ catalog_url }}{% if filter_params.q %}?q={{ filter_params.q|urlencode }}{% endif %}"
+                   hx-target="#main-content" hx-push-url="true">{% translate "Reset" %}</a>
+            {% endif %}
+            <button type="button" class="filter-btn" aria-controls="filter-drawer"
+                    hx-get="{{ catalog_url }}?show_filters=true&amp;q={{ filter_params.q|urlencode }}&amp;color={{ filter_params.color|urlencode }}&amp;size={{ filter_params.size|urlencode }}&amp;min_price={{ filter_params.min_price|urlencode }}&amp;max_price={{ filter_params.max_price|urlencode }}"
+                    hx-target="#filter-content">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
+                {% translate "Filters" %}
+                {% if active_filter %}<span class="filter-btn__dot" title="{% translate 'Filters applied' %}"></span>{% endif %}
+            </button>
+        </div>
+    </div>
+
+    {% if products %}
+        <div class="grid grid--4">
+            {% for product in products %}
+                {% include "main/includes/product_card.html" %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty">
+            <p class="empty__title">{% translate "Nothing found" %}</p>
+            <p class="empty__text">
+                {% if filter_params.q or active_filter %}
+                    {% translate "Try another search or reset the filters." %}
+                {% elif current_category %}
+                    {% translate "No products in this category yet." %}
+                {% else %}
+                    {% translate "No products available at the moment." %}
+                {% endif %}
+            </p>
+            <a class="btn btn--secondary" href="{% url 'main:catalog_all' %}"
+               hx-get="{% url 'main:catalog_all' %}" hx-target="#main-content" hx-push-url="true">{% translate "Show all products" %}</a>
+        </div>
+    {% endif %}
+</section>
+
+<div class="drawer" id="filter-drawer" aria-hidden="true">
+    <div class="drawer__backdrop" data-drawer-close></div>
+    <section class="drawer__panel" role="dialog" aria-modal="true" aria-labelledby="filter-title" tabindex="-1">
+        <header class="drawer__header">
+            <h2 class="drawer__title" id="filter-title">{% translate "Filters" %}</h2>
+            <button type="button" class="icon-btn" data-drawer-close aria-label="{% translate 'Close filters' %}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+            </button>
+        </header>
+        {# Форму фильтров присылает main/filter_modal.html #}
+        <div class="drawer__content" id="filter-content" data-drawer-content></div>
+    </section>
+</div>

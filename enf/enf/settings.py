@@ -40,6 +40,9 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # Выбирает язык запроса: cookie django_language → язык браузера → LANGUAGE_CODE.
+    # Должна стоять после SessionMiddleware и до CommonMiddleware
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -63,6 +66,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
 
                 'cart.context_processors.cart_processor',
+                'main.context_processors.site',
             ],
         },
     },
@@ -101,7 +105,19 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 
-LANGUAGE_CODE = 'en-us'
+# Язык по умолчанию — для тех, чей браузер не просит ни ru, ни en, и кто ещё не нажимал кнопку
+LANGUAGE_CODE = 'ru'
+
+LANGUAGES = [
+    ('ru', 'Русский'),
+    ('en', 'English'),
+]
+
+# Файлы переводов: locale/ru/LC_MESSAGES/django.po (создаются командой makemessages)
+LOCALE_PATHS = [BASE_DIR / 'locale']
+
+# Помнить выбранный язык год. По умолчанию cookie живёт только до закрытия браузера
+LANGUAGE_COOKIE_AGE = 60 * 60 * 24 * 365
 
 TIME_ZONE = 'UTC'
 

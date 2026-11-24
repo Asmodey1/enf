@@ -1,0 +1,1 @@
+{% load i18n %}{% if product %}{{ product.name }} — {% elif products is not None %}{% if current_category %}{% for category in categories %}{% if category.slug == current_category %}{{ category.name }}{% endif %}{% endfor %}{% else %}{% translate "Shop all" %}{% endif %} — {% endif %}{{ site_name }}

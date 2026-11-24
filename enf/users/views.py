@@ -10,14 +10,33 @@ from .models import CustomUser
 from django.contrib import messages
 from main.models import Product
 from django.contrib.auth import login as auth_login
+from django.utils.http import url_has_allowed_host_and_scheme
+
+
+def login_user(request, user):
+    # login() меняет ключ сессии, а корзина привязана к нему — переносим её, чтобы товары не пропали
+    cart = getattr(request, 'cart', None)
+    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+    if cart is not None and request.session.session_key:
+        cart.session_key = request.session.session_key
+        cart.save()
+
+
+def redirect_after_login(request):
+    next_url = request.POST.get('next')
+    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()},
+                                                    require_https=request.is_secure()):
+        return redirect(next_url)
+    return redirect('main:index')
+
 
 def register(request):
     if request.method =='POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user, backend='django.contrib.auth.backedns.ModelBackend')
-            return redirect('main:index')
+            login_user(request, user)
+            return redirect_after_login(request)
     else:
         form = CustomUserCreationForm()
     return render(request, 'users/register.html', {'form':form})
@@ -27,8 +46,8 @@ def login_view(request):
         form = CustomUserLoginForm(request=request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
-            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            return redirect('main:index')
+            login_user(request, user)
+            return redirect_after_login(request)
     else:
         form = CustomUserLoginForm()
     return render(request, 'users/login.html', {'form': form})
@@ -79,7 +98,7 @@ def update_account_details(request):
             user=form.save(commit=False)
             user.clean()
             user.save()
-            updated_user = CustomUser.objects.get(id=user_id)
+            updated_user = CustomUser.objects.get(id=user.id)
             request.user = updated_user
             if request.headers.get('HX-Request'):
                 return TemplateResponse(request, 'users/partials/account_details.html', {'user': updated_user})

@@ -4,6 +4,7 @@ from django.http import JsonResponse, HttpResponse
 from django.template.response import TemplateResponse
 from django.contrib import messages
 from django.db import transaction
+from django.utils.translation import gettext as _
 from main.models import Product, ProductSize
 from .models import Cart, CartItem
 from .forms import AddToCartForm 
@@ -50,7 +51,7 @@ class AddToCartView(CartMixin, View):
 
         if not form.is_valid():
             return JsonResponse({
-                'error': 'Invalid form data',
+                'error': _('Invalid form data'),
                 'errors' : form.errors,
             }, status=400)
 
@@ -65,12 +66,12 @@ class AddToCartView(CartMixin, View):
             product_size = product.product_filter_size.filter(stock__gt=0).first()
             if not product_size:
                 return JsonResponse({
-                    'error': 'No sizes available for this product'
+                    'error': _('No sizes available for this product')
                 }, status=400)
         quantity = form.cleaned_data['quantity']
         if product_size.stock <quantity:
             return JsonResponse({
-                'error' : f"Only {product_size.stock} items available"
+                'error': _('Only %(count)s items available') % {'count': product_size.stock}
             }, status=400)
         existing_item = cart.items.filter(
         product=product,
@@ -81,7 +82,10 @@ class AddToCartView(CartMixin, View):
             total_quantity = existing_item.quantity + quantity
             if total_quantity > product_size.stock:
                 return JsonResponse({
-                    'error': f"Cannot add {quantity} items. Only {product_size.stock - existing_item.quantity} more items can be added"
+                    'error': _('Cannot add %(quantity)s items. Only %(available)s more items can be added') % {
+                        'quantity': quantity,
+                        'available': product_size.stock - existing_item.quantity,
+                    }
 
                 }, status=400)
         cart_item = cart.add_product(product, product_size, quantity)
@@ -95,7 +99,7 @@ class AddToCartView(CartMixin, View):
             return JsonResponse({
                 'success':True,
                 'total_items': cart.total_items,
-                'message': f"{product.name} added to cart",
+                'message': _('%(product)s added to cart') % {'product': product.name},
                 'cart_items_id': cart_item.id,
             })
         
@@ -111,7 +115,7 @@ class UpdateCartItemView(CartMixin, View):
 
         if quantity < 0:
             return JsonResponse({
-                'error': 'Invalid quantity'
+                'error': _('Invalid quantity')
             }, status=400)
 
         if quantity == 0:
@@ -119,7 +123,7 @@ class UpdateCartItemView(CartMixin, View):
         else:
             if quantity > cart_item.product_size.stock:
                 return JsonResponse({
-                 'error': f"Only {cart_item.product_size.stock} items available"   
+                 'error': _('Only %(count)s items available') % {'count': cart_item.product_size.stock}   
                 }, status=400)
 
 
@@ -161,7 +165,7 @@ class RemoveCartItemView(CartMixin, View):
             return TemplateResponse(request, 'cart/cart_modal.html', context)
         except CartItem.DoesNotExist:
             return JsonResponse({
-                'error': 'Item not found',
+                'error': _('Item not found'),
             }, status=400)
 
 
@@ -188,7 +192,7 @@ class ClearCartView(CartMixin, View):
         return TemplateResponse(request, 'cart/cart_empty.html', {'cart': cart})
         return JsonResponse({
             'success': True,
-            'message': 'Cart cleared',
+            'message': _('Cart cleared'),
         })
 
 

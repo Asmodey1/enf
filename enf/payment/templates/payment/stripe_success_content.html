@@ -1,0 +1,24 @@
+{% extends base_template %}
+{% load i18n %}
+
+{% block title %}{% translate "Thank you" %} — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="result container">
+    <div class="result__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
+    </div>
+    <p class="eyebrow">{% blocktranslate with id=order.id %}Order #{{ id }}{% endblocktranslate %}</p>
+    <h1 class="result__title">{% translate "Thank you for your order" %}</h1>
+    <p class="result__text">
+        {% blocktranslate trimmed with email=order.email %}
+            Your order has been placed. We'll send a confirmation to <strong>{{ email }}</strong> soon.
+        {% endblocktranslate %}
+    </p>
+    <div class="result__actions">
+        <a class="btn btn--primary" href="{% url 'main:catalog_all' %}"
+           hx-get="{% url 'main:catalog_all' %}" hx-target="#main-content" hx-push-url="true">{% translate "Continue shopping" %}</a>
+        <a class="btn btn--secondary" href="{% url 'users:profile' %}#orders">{% translate "My orders" %}</a>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% load i18n %}
+<header class="header">
+    <div class="header__inner">
+        <button type="button" class="icon-btn header__burger" data-drawer-open="menu-drawer" aria-controls="menu-drawer" aria-label="{% translate 'Open menu' %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M3 8.5h18M3 15.5h18"/></svg>
+        </button>
+
+        <a class="brand" href="{% url 'main:index' %}"
+           hx-get="{% url 'main:index' %}" hx-target="#main-content" hx-push-url="true">
+            ENFANTS RICHES<br>DÉPRIMÉS
+        </a>
+
+        <nav class="nav" aria-label="{% translate 'Categories' %}">
+            <a class="nav__link{% if request.resolver_match.url_name == 'catalog_all' %} is-active{% endif %}" data-nav-link
+               href="{% url 'main:catalog_all' %}"
+               hx-get="{% url 'main:catalog_all' %}" hx-target="#main-content" hx-push-url="true">{% translate "Shop all" %}</a>
+            {% for category in nav_categories %}
+                <a class="nav__link{% if current_category == category.slug %} is-active{% endif %}" data-nav-link
+                   href="{% url 'main:catalog' category.slug %}"
+                   hx-get="{% url 'main:catalog' category.slug %}" hx-target="#main-content" hx-push-url="true">{{ category.name }}</a>
+            {% endfor %}
+        </nav>
+
+        <div class="header__actions">
+            <div class="header__lang">
+                {% include "main/includes/lang_switch.html" %}
+            </div>
+
+            <div class="header__search" id="search-wrapper">
+                {% include "main/search_button.html" %}
+            </div>
+
+            {% if user.is_authenticated %}
+                <a class="header__link header__account" href="{% url 'users:profile' %}"
+                   hx-get="{% url 'users:profile' %}" hx-target="#main-content" hx-push-url="true">{% translate "Account" %}</a>
+            {% else %}
+                <a class="header__link header__account" href="{% url 'users:login' %}"
+                   hx-get="{% url 'users:login' %}" hx-target="#main-content" hx-push-url="true">{% translate "Log in" %}</a>
+            {% endif %}
+
+            <button type="button" class="header__link" data-cart-open aria-controls="cart-drawer">
+                {% translate "Cart" %} (<span data-cart-count>{{ cart_total_items }}</span>)
+            </button>
+        </div>
+    </div>
+</header>

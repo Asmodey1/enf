@@ -1,15 +1,17 @@
 from django.db import models
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 from main.models import Product, ProductSize
 
 
 class Order(models.Model):
+    # Подписи статусов видны в истории заказов (get_status_display), поэтому переводим их
     STATUS_cHOICES = (
-        ('pending', 'Pending'),
-        ('processing', 'Processing'),
-        ('shipped', 'Shipped'),
-        ('delivered', 'Delivered'),
-        ('cancelled', 'Cancelled'),
+        ('pending', _('Pending')),
+        ('processing', _('Processing')),
+        ('shipped', _('Shipped')),
+        ('delivered', _('Delivered')),
+        ('cancelled', _('Cancelled')),
     )
     PAYMENT_PROVIDER_CHOICES = (
         ('stripe', 'Stripe'),
@@ -21,8 +23,8 @@ class Order(models.Model):
     last_name = models.CharField(max_length=50)
     email = models.EmailField(max_length=254)
     company = models.CharField(max_length=100, blank=True, null=True)
-    adress1 = models.CharField(max_length=100, blank=True, null=True)
-    adress2 = models.CharField(max_length=100, blank=True, null=True)
+    address1 = models.CharField(max_length=100, blank=True, null=True)
+    address2 = models.CharField(max_length=100, blank=True, null=True)
     city = models.CharField(max_length=100, blank=True, null=True)
     country = models.CharField(max_length=100, blank=True, null=True)
     province = models.CharField(max_length=100, blank=True, null=True)
