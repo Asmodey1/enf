@@ -9,6 +9,7 @@ from django.utils.translation import gettext as _
 from django.views.generic import  View
 from .forms import OrderForm
 from .models import Order, OrderItem
+from .services import find_stock_problems
 from cart.views import CartMixin
 from cart.models import Cart
 from main.models import ProductSize
@@ -41,6 +42,8 @@ class CheckoutView(CartMixin, View):
             'cart': cart,
             'cart_items': cart.items.select_related('product', 'product_size__size').order_by('-added_at'),
             'total_price': total_price,
+            # Если что-то из корзины уже раскупили, предупреждаем сразу, а не после заполнения формы
+            'error_message': ' '.join(find_stock_problems(cart)),
         }
 
         if request.headers.get('HX-Request'):
@@ -76,6 +79,20 @@ class CheckoutView(CartMixin, View):
         form = OrderForm(form_data, user=request.user)
 
         if form.is_valid():
+            # Пока товар лежал в корзине, его могли раскупить — не отправляем на оплату то, чего нет на складе
+            stock_problems = find_stock_problems(cart)
+            if stock_problems:
+                context = {
+                    'form': form,
+                    'cart': cart,
+                    'cart_items': cart.items.select_related('product', 'product_size__size').order_by('-added_at'),
+                    'total_price': total_price,
+                    'error_message': ' '.join(stock_problems),
+                }
+                if request.headers.get('HX-Request'):
+                    return TemplateResponse(request, 'orders/checkout_content.html', context)
+                return render(request, 'orders/checkout.html', context)
+
             order = Order.objects.create(
                 user=request.user,
                 first_name=form.cleaned_data['first_name'],
@@ -109,7 +126,8 @@ class CheckoutView(CartMixin, View):
                 if payment_provider == 'stripe':
                     logger.debug("Creating Stripe checkout session")
                     checkout_session = create_stripe_checkout_session(order, request)
-                    cart.clear()
+                    # Корзину здесь не очищаем: если клиент вернётся со Stripe без оплаты, товары должны остаться.
+                    # Её очищает stripe_success, когда оплата прошла
                     if request.headers.get('HX-Request'):
                         response = HttpResponse(status=200)
                         response['HX-Redirect'] = checkout_session.url

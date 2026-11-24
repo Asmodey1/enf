@@ -144,4 +144,15 @@ SESSION_SAVE_EVERY_REQUEST = True
 AUTH_USER_MODEL = 'users.CustomUser'
 
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
-STRIPE_WEBKOOK_SECRET_KEY = os.getenv('STRIPE_WEBKOOK_SECRET')
+# Имя должно совпадать с переменной в .env: иначе секрет не загрузится и webhook не сможет проверить подпись Stripe
+STRIPE_WEBKOOK_SECRET_KEY = os.getenv('STRIPE_WEBKOOK_SECRET_KEY')
+
+# Письма клиентам (подтверждение оплаты). По умолчанию они печатаются в консоль runserver.
+# Для настоящей отправки задайте в .env EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend и EMAIL_HOST_*
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'localhost')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@localhost')

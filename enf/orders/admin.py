@@ -16,16 +16,16 @@ class OrderItemInline(admin.TabularInline):
     def image_preview(self, obj):
         if obj.product.main_image:
             return mark_safe(f'<img src = "{obj.product.main_image.url}" style = "max-height: 100px; max-width: 100px; object-fit: cover;"/>')
-            return mark_safe('span style = "color: gray;"> No image</span>')
-    image_preview.shrot_description = 'Image'
+        return mark_safe('<span style="color: gray;">No image</span>')
+    image_preview.short_description = 'Image'
 
 
     def get_total_price(self, obj):
         try:
             return obj.get_total_price()
         except TypeError:
-            return mark_safe('span style = "color: red;">InvalidData</span>')
-    get_total_price.short_decription = 'Total Price'
+            return mark_safe('<span style="color: red;">Invalid data</span>')
+    get_total_price.short_description = 'Total Price'
         
 
 
@@ -42,13 +42,13 @@ class OrderAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Order Information',{
-        'fields' : ('user', 'first_name', 'last_name', 'email', 'company', 'adress1', 'adress2', 'city', 'country', 'province', 'postal_code',
+        'fields' : ('user', 'first_name', 'last_name', 'email', 'company', 'address1', 'address2', 'city', 'country', 'province', 'postal_code',
                     'phone', 'special_instructions', 'total_price' )
                 
         
         }),
         ('Payment and Status',{
-            'fields': ('status', 'payment_provider', 'stripe_payment_intend_id',)
+            'fields': ('status', 'payment_provider', 'stripe_payment_intent_id',)
         }),
         ('Timestamps',{
             'fields': ('created_at', 'updated_at',),
@@ -56,9 +56,9 @@ class OrderAdmin(admin.ModelAdmin):
         })
     )
 
-
-def get_readonly_fields(self, request, obj = None):
-    if obj:
-        return self.readonly_fields + ('user', 'firts_name', 'last_name', 'email', 'company',
-                                        'addres1', 'addres2', 'city', 'country', 'province', 'postal_code','phone', )
-    return self.readonly_fields
+    # В оформленном заказе данные покупателя — это история, их не правят; менять можно статус
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return self.readonly_fields + ('user', 'first_name', 'last_name', 'email', 'company',
+                                           'address1', 'address2', 'city', 'country', 'province', 'postal_code', 'phone')
+        return self.readonly_fields

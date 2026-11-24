@@ -14,6 +14,9 @@
     <div class="result__actions">
         <a class="btn btn--primary" href="{% url 'main:catalog_all' %}"
            hx-get="{% url 'main:catalog_all' %}" hx-target="#main-content" hx-push-url="true">{% translate "Back to shop" %}</a>
+        {# Корзина после отмены сохраняется, поэтому можно сразу вернуться к оформлению #}
+        <a class="btn btn--secondary" href="{% url 'orders:checkout' %}"
+           hx-get="{% url 'orders:checkout' %}" hx-target="#main-content" hx-push-url="true">{% translate "Checkout" context "button" %}</a>
     </div>
 </section>
 {% endblock %}

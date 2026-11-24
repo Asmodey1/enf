@@ -1,0 +1,15 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate with name=order.first_name %}Hi, {{ name }}{% endblocktranslate %}!
+
+{% translate "Thank you for your order" %}! {% blocktranslate with id=order.id %}Payment received — order #{{ id }} is now being processed.{% endblocktranslate %}
+
+{% for item in order.items.all %}{{ item.product.name }} · {% blocktranslate with size=item.size.size.name %}Size {{ size }}{% endblocktranslate %} × {{ item.quantity }} — ${{ item.get_total_price|floatformat:"2g" }}
+{% endfor %}
+{% translate "Shipping" %}: {% translate "Free" context "shipping" %}
+{% translate "Total" %}: ${{ order.total_price|floatformat:"2g" }}
+
+{% translate "Shipping address" %}:
+{{ order.first_name }} {{ order.last_name }}
+{% if order.address1 %}{{ order.address1 }}{% if order.address2 %}, {{ order.address2 }}{% endif %}
+{% endif %}{% if order.city %}{{ order.city }}{% if order.province %}, {{ order.province }}{% endif %}{% if order.postal_code %} {{ order.postal_code }}{% endif %}
+{% endif %}{% if order.country %}{{ order.country }}
+{% endif %}{% endautoescape %}

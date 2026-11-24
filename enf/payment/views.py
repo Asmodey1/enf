@@ -7,7 +7,11 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAll
 from django.template.response import TemplateResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+from django.utils import translation
 from orders.models import Order
+from orders.services import confirm_payment
 from cart.views import CartMixin
 from decimal import Decimal
 import json
@@ -16,7 +20,7 @@ import base64
 
 
 #stripe login
-#stripe listen --forward-to localhost:8000/payment/webhook/
+#stripe listen --forward-to localhost:8000/payment/stripe/webhook/
 
 stripe.api_key=settings.STRIPE_SECRET_KEY
 stripe_endpoint_secret=settings.STRIPE_WEBKOOK_SECRET_KEY
@@ -43,7 +47,9 @@ def create_stripe_checkout_session(order, request):
             success_url=request.build_absolute_uri('/payment/stripe/success/') + '?session_id={CHECKOUT_SESSION_ID}',
             cancel_url=request.build_absolute_uri('/payment/stripe/cancel/') + f'?order_id={order.id}',
             metadata={
-                'order_id': order.id
+                'order_id': order.id,
+                # Язык сайта на момент заказа: на нём придёт письмо-подтверждение
+                'language': translation.get_language(),
             }
         )
         order.stripe_payment_intent_id = checkout_session.payment_intent
@@ -71,17 +77,16 @@ def stripe_webhook(request):
     except stripe.error.SignatureVerificationError as e:
         return HttpResponse(status=400)
 
-    if event['type'] == 'checkout.session.completed':
+    if event['type'] == 'checkout.session.completed' and event['data']['object'].get('payment_status') == 'paid':
         session = event['data']['object']
-        order_id = session['metadata'].get ('order_id')
-        try:
-            order = Order.objects.get(id = order_id)
-            order.status = 'processing'
-            order.stripe_payment_intent_id = session.get('payment_intent')
-            order.save()
-        except Order.DoesNotExist:
+        order = confirm_payment(
+            session['metadata'].get('order_id'),
+            payment_intent_id=session.get('payment_intent'),
+            language=session['metadata'].get('language'),
+        )
+        if order is None:
             return HttpResponse(status=400)
-        
+
     return HttpResponse(status=200)
 
 
@@ -92,6 +97,11 @@ def stripe_success(request):
         try:
             session = stripe.checkout.Session.retrieve(session_id)
             order_id = session.metadata.get('order_id')
+            # Webhook может прийти позже или не дойти вовсе (локально без stripe listen),
+            # поэтому подтверждаем оплату и здесь. Дважды она не засчитается
+            if session.payment_status == 'paid':
+                confirm_payment(order_id, payment_intent_id=session.payment_intent,
+                                language=session.metadata.get('language'))
             order = get_object_or_404(Order, id=order_id)
 
             cart = CartMixin().get_cart(request)
@@ -106,12 +116,18 @@ def stripe_success(request):
     return redirect('main:index')
 
 
+@login_required(login_url='/users/login')
 def stripe_cancel(request):
     order_id = request.GET.get('order_id')
     if order_id:
-        order = get_object_or_404(Order, id=order_id)
-        order.status = 'cancelled'
-        order.save()
+        # Ищем только среди своих заказов, иначе любой отменил бы чужой заказ, подставив номер в ссылку
+        order = get_object_or_404(Order, id=order_id, user=request.user)
+        if order.status == 'pending':
+            order.status = 'cancelled'
+            order.save()
+        elif order.status != 'cancelled':
+            # Заказ уже оплачен: отменять его нельзя, а страница «оплата отменена» была бы неправдой
+            return redirect(reverse('users:profile') + '#orders')
         context = {'order': order}
         if request.headers.get('HX-Request'):
             return TemplateResponse(request, 'payment/stripe_cancel_content.html', context)

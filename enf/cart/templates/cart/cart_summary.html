@@ -4,7 +4,8 @@
         <span>{% translate "Subtotal" %}</span>
         <span>${{ cart.subtotal|floatformat:"2g" }}</span>
     </div>
-    <p class="cart__note">{% translate "Shipping is calculated at checkout." %}</p>
+    {# Отдельно за доставку сейчас не платят: Stripe списывает только сумму товаров. Появится платная доставка — поменять текст #}
+    <p class="cart__note">{% translate "Free shipping" %}</p>
     <a class="btn btn--primary btn--block" href="{% url 'orders:checkout' %}"
        hx-get="{% url 'orders:checkout' %}" hx-target="#main-content" hx-push-url="true">{% translate "Checkout" context "button" %}</a>
     <button type="button" class="text-btn cart__clear"

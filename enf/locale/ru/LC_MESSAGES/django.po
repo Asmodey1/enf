@@ -72,9 +72,9 @@ msgstr "Очистить корзину"
 msgid "Subtotal"
 msgstr "Сумма"
 
-#: cart/templates/cart/cart_summary.html:7
-msgid "Shipping is calculated at checkout."
-msgstr "Стоимость доставки рассчитывается при оформлении заказа."
+#: cart/templates/cart/cart_summary.html:8
+msgid "Free shipping"
+msgstr "Бесплатная доставка"
 
 #: cart/templates/cart/cart_summary.html:9
 msgctxt "button"
@@ -486,9 +486,10 @@ msgstr "$%(price)s за шт."
 msgid "Shipping"
 msgstr "Доставка"
 
-#: orders/templates/orders/partials/summary.html:32
-msgid "Calculated at next step"
-msgstr "Рассчитывается на следующем шаге"
+#: orders/templates/orders/partials/summary.html:32 orders/templates/orders/emails/order_paid.txt:8
+msgctxt "shipping"
+msgid "Free"
+msgstr "Бесплатно"
 
 #: orders/templates/orders/partials/summary.html:35
 msgid "Total"
@@ -506,6 +507,26 @@ msgstr "Исправьте ошибки в форме."
 #: orders/views.py:66
 msgid "Please select a valid payment provider (Stripe or Heleket)."
 msgstr "Выберите способ оплаты (Stripe или Heleket)."
+
+#: orders/templates/orders/emails/order_paid.txt:3
+#, python-format
+msgid "Payment received — order #%(id)s is now being processed."
+msgstr "Оплата получена, заказ №%(id)s передан в обработку."
+
+#: orders/services.py:29
+#, python-format
+msgid "%(product)s, size %(size)s, is sold out. Please remove it from your cart."
+msgstr "%(product)s, размер %(size)s — нет в наличии. Удалите товар из корзины."
+
+#: orders/services.py:31
+#, python-format
+msgid "%(product)s, size %(size)s: only %(count)s left. Please reduce the quantity in your cart."
+msgstr "%(product)s, размер %(size)s: осталось только %(count)s шт. Уменьшите количество в корзине."
+
+#: orders/services.py:68
+#, python-format
+msgid "Order #%(id)s is paid"
+msgstr "Заказ №%(id)s оплачен"
 
 #: payment/templates/payment/stripe_cancel_content.html:11 payment/templates/payment/stripe_success_content.html:11 users/templates/users/partials/order_history.html:8
 #, python-format
