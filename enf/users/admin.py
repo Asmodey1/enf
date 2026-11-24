@@ -5,7 +5,8 @@ from .models import CustomUser
 class CustomUserAdmin(UserAdmin):
     list_display = ('email', 'first_name', 'last_name', 'country')
     list_filter = ('country',)
-    search_fields = ('email', 'first_name', 'last_name', 'company', 'city' 'country' )
+    # Между 'city' и 'country' не было запятой: Python склеивал их в 'citycountry', и поиск падал с ошибкой 500
+    search_fields = ('email', 'first_name', 'last_name', 'company', 'city', 'country')
     ordering = ('email',)
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
@@ -24,14 +25,6 @@ class CustomUserAdmin(UserAdmin):
             'fields':('email', 'first_name', 'last_name', 'password1', 'password2', 'is_staff', 'is_active'),
         }),
     )
-
-
-def get_form(self, request, obj=None, **kwargs):
-    form = super().get_form(request, obj, **kwargs)
-    if 'username' in form.base_fields:
-        form.base_fields['username'].disabled = True
-
-    return form
 
 
 

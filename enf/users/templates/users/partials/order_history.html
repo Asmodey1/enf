@@ -1,28 +1,27 @@
 {% load i18n %}
-{% with orders=user.orders.all|dictsortreversed:"created_at" %}
-    {% if orders %}
-        <ul class="orders">
-            {% for order in orders %}
-                <li class="order">
-                    <div>
-                        <p class="order__id">{% blocktranslate with id=order.id %}Order #{{ id }}{% endblocktranslate %}</p>
-                        <p class="order__meta">{{ order.created_at|date:"j M Y" }}</p>
-                        <p class="order__meta">
-                            {% for item in order.items.all %}{{ item.product.name }} × {{ item.quantity }}{% if not forloop.last %}, {% endif %}{% endfor %}
-                        </p>
-                    </div>
-                    <div class="order__side">
-                        <span class="badge badge--{{ order.status }}">{{ order.get_status_display }}</span>
-                        <span class="order__total">${{ order.total_price|floatformat:"2g" }}</span>
-                    </div>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <div class="empty empty--inline">
-            <p class="muted">{% translate "You haven't placed any orders yet." %}</p>
-            <a class="btn btn--secondary btn--sm" href="{% url 'main:catalog_all' %}"
-               hx-get="{% url 'main:catalog_all' %}" hx-target="#main-content" hx-push-url="true">{% translate "Start shopping" %}</a>
-        </div>
-    {% endif %}
-{% endwith %}
+{# orders приходит из profile_view уже отсортированным и с позициями — без лишних запросов на каждый заказ #}
+{% if orders %}
+    <ul class="orders">
+        {% for order in orders %}
+            <li class="order">
+                <div>
+                    <p class="order__id">{% blocktranslate with id=order.id %}Order #{{ id }}{% endblocktranslate %}</p>
+                    <p class="order__meta">{{ order.created_at|date:"j M Y" }}</p>
+                    <p class="order__meta">
+                        {% for item in order.items.all %}{{ item.product.name }} × {{ item.quantity }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                    </p>
+                </div>
+                <div class="order__side">
+                    <span class="badge badge--{{ order.status }}">{{ order.get_status_display }}</span>
+                    <span class="order__total">${{ order.total_price|floatformat:"2g" }}</span>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <div class="empty empty--inline">
+        <p class="muted">{% translate "You haven't placed any orders yet." %}</p>
+        <a class="btn btn--secondary btn--sm" href="{% url 'main:catalog_all' %}"
+           hx-get="{% url 'main:catalog_all' %}" hx-target="#main-content" hx-push-url="true">{% translate "Start shopping" %}</a>
+    </div>
+{% endif %}

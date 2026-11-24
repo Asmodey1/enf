@@ -432,9 +432,13 @@ msgstr "Квартира, офис и т. п. (необязательно)"
 msgid "City"
 msgstr "Город"
 
-#: orders/templates/orders/checkout_content.html:48 users/templates/users/partials/edit_account_details.html:23
+#: users/templates/users/partials/edit_account_details.html:23
 msgid "State / province"
 msgstr "Область / регион"
+
+#: orders/templates/orders/checkout_content.html:48
+msgid "State / province (optional)"
+msgstr "Область / регион (необязательно)"
 
 #: orders/templates/orders/checkout_content.html:49 users/templates/users/partials/edit_account_details.html:24
 msgid "Postal code"
@@ -504,9 +508,9 @@ msgstr "Ошибка при оплате: %(error)s"
 msgid "Please correct the errors in the form."
 msgstr "Исправьте ошибки в форме."
 
-#: orders/views.py:66
-msgid "Please select a valid payment provider (Stripe or Heleket)."
-msgstr "Выберите способ оплаты (Stripe или Heleket)."
+#: orders/views.py:61
+msgid "Please select a payment method."
+msgstr "Выберите способ оплаты."
 
 #: orders/templates/orders/emails/order_paid.txt:3
 #, python-format

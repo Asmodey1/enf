@@ -15,9 +15,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 
-DEBUG = True
+# Значения для разработки по умолчанию; на сервере задайте в .env DEBUG=False и ALLOWED_HOSTS=example.com
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [host for host in os.getenv('ALLOWED_HOSTS', '').split(',') if host]
 
 
 # Application definition
@@ -138,10 +139,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
-SESSION_COOKIE_AGE = 86400 #30 DNEY
+# 30 дней: корзина живёт в сессии. Раньше стояло 86400 (одни сутки), хотя комментарий обещал 30 дней
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30
 SESSION_SAVE_EVERY_REQUEST = True
 
 AUTH_USER_MODEL = 'users.CustomUser'
+# Куда @login_required отправляет гостя. Раньше во вьюхах был свой '/users/login' без слеша — лишний редирект
+LOGIN_URL = 'users:login'
 
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
 # Имя должно совпадать с переменной в .env: иначе секрет не загрузится и webhook не сможет проверить подпись Stripe

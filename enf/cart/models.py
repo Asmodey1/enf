@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.sessions.models import Session
+from django.db.models import Sum
 from main.models import Product, ProductSize
 from decimal import Decimal
 
@@ -11,16 +11,26 @@ class Cart(models.Model):
 
     def __str__(self):
         return f"Cart {self.session_key}"
-    
+
+
+    @classmethod
+    def for_request(cls, request):
+        """Корзина текущей сессии. Сессию заводим только сейчас, когда корзина действительно понадобилась."""
+        if not request.session.session_key:
+            request.session.create()
+        cart, created = cls.objects.get_or_create(session_key=request.session.session_key)
+        return cart
+
 
     @property
     def total_items(self):
-        return sum(item.quantity for item in self.items.all())
-    
-    
+        return self.items.aggregate(total=Sum('quantity'))['total'] or 0
+
+
     @property
     def subtotal(self):
-        return sum(item.total_price for item in self.items.all())
+        # select_related: без него на каждую позицию уходил отдельный запрос за ценой товара
+        return sum((item.total_price for item in self.items.select_related('product')), Decimal('0'))
     
 
     def add_product(self, product, product_size, quantity=1):

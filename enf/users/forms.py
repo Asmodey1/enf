@@ -9,6 +9,9 @@ from django.utils.translation import gettext_lazy as _
 
 User = get_user_model()
 
+# Один формат телефона для профиля и для оформления заказа
+phone_validator = RegexValidator(r'^\+?1?\d{9,15}$', _("Enter a valid phone number."))
+
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True, max_length=254, widget=forms.EmailInput(attrs={'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900 placeholder-gray-500', 'placeholder': _('EMAIL')}))
@@ -31,7 +34,8 @@ class CustomUserCreationForm(UserCreationForm):
     
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if User.objects.filter(email=email).exists():
+        # iexact: Ivan@mail.ru и ivan@mail.ru — один адрес, второй аккаунт на него заводить нельзя
+        if User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError(_('This email is already in use.'))
         return email
     
@@ -68,7 +72,7 @@ class CustomUserUpdateForm(forms.ModelForm):
     phone = forms.CharField(
         required=False,
         empty_value=None,
-        validators=[RegexValidator(r'^\+?1?\d{9,15}$', _("Enter a valid phone number."))],
+        validators=[phone_validator],
         widget=forms.TextInput(attrs={'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900 placeholder-gray-500', 'placeholder': _('PHONE NUMBER')})
     )
     first_name = forms.CharField(
@@ -106,7 +110,7 @@ class CustomUserUpdateForm(forms.ModelForm):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if email and User.objects.filter(email=email).exclude(id = self.instance.id).exists():
+        if email and User.objects.filter(email__iexact=email).exclude(id = self.instance.id).exists():
             raise forms.ValidationError(_('This email is already in use.'))
         return email
 

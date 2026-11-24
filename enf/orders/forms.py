@@ -1,6 +1,7 @@
 from django import forms
 from django.utils.html import strip_tags
 from django.utils.translation import gettext_lazy as _
+from users.forms import phone_validator
 
 
 
@@ -34,9 +35,10 @@ class OrderForm(forms.Form):
             'placeholder': _('Company (optional)')
         })
     )
+    # Адрес, город, страна и индекс обязательны: без них заказ не доставить, а на странице
+    # оформления они и не помечены «необязательно». Раньше форма принимала заказ без адреса
     address1 = forms.CharField(
         max_length=255,
-        required=False,
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-3 border border-black rounded-none text-black placeholder-gray-500 focus:outline-none focus:border-black pr-10',
             'placeholder': _('Address Line 1')
@@ -52,7 +54,6 @@ class OrderForm(forms.Form):
     )
     city = forms.CharField(
         max_length=100,
-        required=False,
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-3 border border-black rounded-none text-black placeholder-gray-500 focus:outline-none focus:border-black',
             'placeholder': _('City')
@@ -60,7 +61,6 @@ class OrderForm(forms.Form):
     )
     country = forms.CharField(
         max_length=100,
-        required=False,
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-3 border border-black rounded-none text-black placeholder-gray-500 focus:outline-none focus:border-black',
             'placeholder': _('Country')
@@ -76,15 +76,16 @@ class OrderForm(forms.Form):
     )
     postal_code = forms.CharField(
         max_length=20,
-        required=False,
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-3 border border-black rounded-none text-black placeholder-gray-500 focus:outline-none focus:border-black',
             'placeholder': _('Postal Code')
         })
     )
+    # Та же проверка, что в профиле: раньше профиль принимал до 17 символов, а заказ — только 15
     phone = forms.CharField(
-        max_length=15,
+        max_length=20,
         required=False,
+        validators=[phone_validator],
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-3 border border-black rounded-none text-black placeholder-gray-500 focus:outline-none focus:border-black pr-10',
             'placeholder': _('Phone (optional)')

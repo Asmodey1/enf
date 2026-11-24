@@ -1,14 +1,12 @@
 from django.utils.deprecation import MiddlewareMixin
+from django.utils.functional import SimpleLazyObject
 from .models import Cart
 
 
 
 class CartMiddleware(MiddlewareMixin):
     def process_request(self, request):
-        if not request.session.session_key:
-            request.session.create()
-
-        request.cart, created = Cart.objects.get_or_create(
-            session_key=request.session.session_key
-        )
+        # Корзина создаётся при первом обращении к request.cart (добавление товара, открытие корзины),
+        # а не на каждый запрос: раньше webhook Stripe, боты и запросы картинок плодили пустые сессии и корзины
+        request.cart = SimpleLazyObject(lambda: Cart.for_request(request))
         return None

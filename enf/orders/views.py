@@ -1,161 +1,113 @@
+import logging
+from decimal import Decimal
 
-from django.conf import settings
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from django.http import HttpResponse    
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponse
+from django.shortcuts import redirect, render
 from django.template.response import TemplateResponse
 from django.utils.translation import gettext as _
-from django.views.generic import  View
+from django.views.generic import View
+
+from cart.views import CartMixin
+from payment.views import create_stripe_checkout_session
 from .forms import OrderForm
 from .models import Order, OrderItem
 from .services import find_stock_problems
-from cart.views import CartMixin
-from cart.models import Cart
-from main.models import ProductSize
-from django.shortcuts import get_object_or_404
-from payment.views import create_stripe_checkout_session
-from decimal import Decimal
-import logging
 
 logger = logging.getLogger(__name__)
 
+# Подключена только оплата картой через Stripe. Раньше пропускался и 'heleket', для которого
+# нет кода оплаты: заказ создавался, а вьюха ничего не возвращала и падала с ошибкой 500
+PAYMENT_PROVIDERS = ('stripe',)
 
 
-
-@method_decorator(login_required(login_url='/users/login'), name='dispatch')
-class CheckoutView(CartMixin, View):
-    def get(self, request):
-        cart = self.get_cart(request)
-        logger.debug(f"Checkout view: session_key={request.session.session_key}, cart_id={cart.id}, total_items={cart.total_items}, subtotal={cart.subtotal}")
-
-        if cart.total_items == 0:
-            logger.warning("Cart is empty, showing empty cart page")
-            return TemplateResponse(request, 'orders/empty_cart.html', {'message': _('Your cart is empty')})
-
-        total_price = cart.subtotal
-        logger.debug(f"Total price: {total_price}")
-
-        form = OrderForm(user=request.user)
+class CheckoutView(LoginRequiredMixin, CartMixin, View):
+    def render_checkout(self, request, cart, form, error_message=''):
         context = {
             'form': form,
             'cart': cart,
             'cart_items': cart.items.select_related('product', 'product_size__size').order_by('-added_at'),
-            'total_price': total_price,
-            # Если что-то из корзины уже раскупили, предупреждаем сразу, а не после заполнения формы
-            'error_message': ' '.join(find_stock_problems(cart)),
+            'total_price': cart.subtotal,
+            'error_message': error_message,
         }
-
         if request.headers.get('HX-Request'):
             return TemplateResponse(request, 'orders/checkout_content.html', context)
         return render(request, 'orders/checkout.html', context)
 
-    def post(self, request):
+    def get(self, request):
         cart = self.get_cart(request)
-        payment_provider = request.POST.get('payment_provider')
-        logger.debug(f"Checkout POST: session_key={request.session.session_key}, cart_id={cart.id}, total_items={cart.total_items}, payment_provider={payment_provider}")
-
         if cart.total_items == 0:
-            logger.warning("Cart is empty, showing empty cart page")
             return TemplateResponse(request, 'orders/empty_cart.html', {'message': _('Your cart is empty')})
 
-        if not payment_provider or payment_provider not in ['stripe', 'heleket']:
-            logger.error(f"Invalid or missing payment provider: {payment_provider}")
-            context = {
-                'form': OrderForm(user=request.user),
-                'cart': cart,
-                'cart_items': cart.items.select_related('product', 'product_size__size').order_by('-added_at'),
-                'total_price': cart.subtotal,
-                'error_message': _('Please select a valid payment provider (Stripe or Heleket).'),
-            }
-            if request.headers.get('HX-Request'):
-                return TemplateResponse(request, 'orders/checkout_content.html', context)
-            return render(request, 'orders/checkout.html', context)
+        # Если что-то из корзины уже раскупили, предупреждаем сразу, а не после заполнения формы
+        return self.render_checkout(request, cart, OrderForm(user=request.user),
+                                    ' '.join(find_stock_problems(cart)))
 
-        total_price = cart.subtotal
+    def post(self, request):
+        cart = self.get_cart(request)
+        if cart.total_items == 0:
+            return TemplateResponse(request, 'orders/empty_cart.html', {'message': _('Your cart is empty')})
+
         form_data = request.POST.copy()
-        if not form_data.get('email'):
-            form_data['email'] = request.user.email
+        # Поле email на странице только для чтения: заказ всегда оформляется на почту аккаунта,
+        # даже если значение подменили в браузере
+        form_data['email'] = request.user.email
         form = OrderForm(form_data, user=request.user)
 
-        if form.is_valid():
-            # Пока товар лежал в корзине, его могли раскупить — не отправляем на оплату то, чего нет на складе
-            stock_problems = find_stock_problems(cart)
-            if stock_problems:
-                context = {
-                    'form': form,
-                    'cart': cart,
-                    'cart_items': cart.items.select_related('product', 'product_size__size').order_by('-added_at'),
-                    'total_price': total_price,
-                    'error_message': ' '.join(stock_problems),
-                }
-                if request.headers.get('HX-Request'):
-                    return TemplateResponse(request, 'orders/checkout_content.html', context)
-                return render(request, 'orders/checkout.html', context)
+        payment_provider = request.POST.get('payment_provider')
+        if payment_provider not in PAYMENT_PROVIDERS:
+            logger.warning('Invalid or missing payment provider: %s', payment_provider)
+            # Форма с введёнными данными, а не пустая, как раньше
+            return self.render_checkout(request, cart, form, _('Please select a payment method.'))
 
-            order = Order.objects.create(
-                user=request.user,
-                first_name=form.cleaned_data['first_name'],
-                last_name=form.cleaned_data['last_name'],
-                email=form.cleaned_data['email'],
-                company=form.cleaned_data['company'],
-                address1=form.cleaned_data['address1'],
-                address2=form.cleaned_data['address2'],
-                city=form.cleaned_data['city'],
-                country=form.cleaned_data['country'],
-                province=form.cleaned_data['province'],
-                postal_code=form.cleaned_data['postal_code'],
-                phone=form.cleaned_data['phone'],
-                special_instructions='',
-                total_price=total_price,
-                payment_provider=payment_provider,
+        if not form.is_valid():
+            logger.warning('Form validation error: %s', form.errors)
+            return self.render_checkout(request, cart, form, _('Please correct the errors in the form.'))
+
+        # Пока товар лежал в корзине, его могли раскупить — не отправляем на оплату то, чего нет на складе
+        stock_problems = find_stock_problems(cart)
+        if stock_problems:
+            return self.render_checkout(request, cart, form, ' '.join(stock_problems))
+
+        order = Order.objects.create(
+            user=request.user,
+            first_name=form.cleaned_data['first_name'],
+            last_name=form.cleaned_data['last_name'],
+            email=form.cleaned_data['email'],
+            company=form.cleaned_data['company'],
+            address1=form.cleaned_data['address1'],
+            address2=form.cleaned_data['address2'],
+            city=form.cleaned_data['city'],
+            country=form.cleaned_data['country'],
+            province=form.cleaned_data['province'],
+            postal_code=form.cleaned_data['postal_code'],
+            phone=form.cleaned_data['phone'],
+            special_instructions='',
+            total_price=cart.subtotal,
+            payment_provider=payment_provider,
+        )
+
+        for item in cart.items.select_related('product', 'product_size'):
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                size=item.product_size,
+                quantity=item.quantity,
+                price=item.product.price or Decimal('0.00')
             )
 
-            for item in cart.items.select_related('product', 'product_size'):
-                logger.debug(f"Processing cart item: product={item.product.name}, size={item.product_size.size.name}, quantity={item.quantity}")
-                OrderItem.objects.create(
-                    order=order,
-                    product=item.product,
-                    size=item.product_size,
-                    quantity=item.quantity,
-                    price=item.product.price or Decimal('0.00')
-                )
+        try:
+            checkout_session = create_stripe_checkout_session(order, request)
+        except Exception as e:
+            logger.error('Error creating payment: %s', e, exc_info=True)
+            order.delete()
+            return self.render_checkout(request, cart, form,
+                                        _('Payment processing error: %(error)s') % {'error': e})
 
-            try:
-                logger.info(f"Creating payment session for provider: {payment_provider}")
-                if payment_provider == 'stripe':
-                    logger.debug("Creating Stripe checkout session")
-                    checkout_session = create_stripe_checkout_session(order, request)
-                    # Корзину здесь не очищаем: если клиент вернётся со Stripe без оплаты, товары должны остаться.
-                    # Её очищает stripe_success, когда оплата прошла
-                    if request.headers.get('HX-Request'):
-                        response = HttpResponse(status=200)
-                        response['HX-Redirect'] = checkout_session.url
-                        logger.info(f"HX-Redirect to Stripe: {checkout_session.url}")
-                        return response
-                    return redirect(checkout_session.url)
-            except Exception as e:
-                logger.error(f"Error creating payment: {str(e)}", exc_info=True)
-                order.delete()
-                context = {
-                    'form': form,
-                    'cart': cart,
-                    'cart_items': cart.items.select_related('product', 'product_size__size').order_by('-added_at'),
-                    'total_price': total_price,
-                    'error_message': _('Payment processing error: %(error)s') % {'error': e},
-                }
-                if request.headers.get('HX-Request'):
-                    return TemplateResponse(request, 'orders/checkout_content.html', context)
-                return render(request, 'orders/checkout.html', context)
-        else:
-            logger.warning(f"Form validation error: {form.errors}")
-            context = {
-                'form': form,
-                'cart': cart,
-                'cart_items': cart.items.select_related('product', 'product_size__size').order_by('-added_at'),
-                'total_price': total_price,
-                'error_message': _('Please correct the errors in the form.'),
-            }
-            if request.headers.get('HX-Request'):
-                return TemplateResponse(request, 'orders/checkout_content.html', context)
-            return render(request, 'orders/checkout.html', context)
+        # Корзину здесь не очищаем: если клиент вернётся со Stripe без оплаты, товары должны остаться.
+        # Её очищает stripe_success, когда оплата прошла
+        if request.headers.get('HX-Request'):
+            response = HttpResponse(status=200)
+            response['HX-Redirect'] = checkout_session.url
+            return response
+        return redirect(checkout_session.url)

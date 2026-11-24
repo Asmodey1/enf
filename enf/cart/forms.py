@@ -1,5 +1,4 @@
 from django import forms
-from .models import CartItem
 
 
 class AddToCartForm(forms.Form):
@@ -20,16 +19,3 @@ class AddToCartForm(forms.Form):
                               required=True,
                               initial = sizes.first().id
                 )
-
-class UpdateCartItemForm(forms.ModelForm):
-    class Meta:
-        model = CartItem
-        fields = ['quantity']
-    
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance and self.instance.product_size:
-            self.fields['quantity'].validators.append(
-                forms.validators.MaxValueValidator(self.instance.product_size.stock)
-            )

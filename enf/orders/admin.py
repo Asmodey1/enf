@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import format_html
 from  django.utils.safestring import mark_safe
 from  .models import Order, OrderItem
 
@@ -8,14 +9,21 @@ class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
     fields = ('image_preview', 'product', 'size', 'quantity', 'price', 'get_total_price')
-    readonly_fields = ('image_preview', 'get_total_price')
+    # Состав оформленного заказа — история: правка позиций разошлась бы с суммой заказа и оплатой в Stripe
+    readonly_fields = fields
     can_delete = False
+
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 
     def image_preview(self, obj):
         if obj.product.main_image:
-            return mark_safe(f'<img src = "{obj.product.main_image.url}" style = "max-height: 100px; max-width: 100px; object-fit: cover;"/>')
+            # format_html экранирует адрес картинки, а mark_safe с f-строкой вставлял его как есть
+            return format_html('<img src="{}" style="max-height: 100px; max-width: 100px; object-fit: cover;">',
+                               obj.product.main_image.url)
         return mark_safe('<span style="color: gray;">No image</span>')
     image_preview.short_description = 'Image'
 
@@ -33,7 +41,8 @@ class OrderItemInline(admin.TabularInline):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('id',  'user' , 'email', 'total_price', 'payment_provider', 'status', 'created_at', 'updated_at')
-    list_filter = ('status', 'first_name', 'last_name')
+    # Фильтр по имени покупателя выводил в боковой панели список всех имён; для поиска по имени есть search_fields
+    list_filter = ('status', 'payment_provider', 'created_at')
     search_fields = ('email','first_name', 'last_name')
     date_hierarchy = 'created_at'
     readonly_fields = ('created_at', 'updated_at', 'total_price', 'stripe_payment_intent_id')

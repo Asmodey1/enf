@@ -1,10 +1,22 @@
-from django.shortcuts import render
+from decimal import Decimal, InvalidOperation
+
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView, DetailView
-from django.http import HttpResponse
 from django.template.response import TemplateResponse
 from .models import Category, Product, Size
 from django.db.models import Q
+
+# Цена в базе не бывает больше (DecimalField: max_digits=10, decimal_places=2)
+MAX_PRICE = Decimal('100000000')
+
+
+def parse_price(value):
+    """Цена из адреса страницы или None, если там не число: ?min_price=abc раньше роняло каталог."""
+    try:
+        price = Decimal(value)
+    except InvalidOperation:
+        return None
+    return price if price.is_finite() and 0 <= price < MAX_PRICE else None
 
 
 class IndexView(TemplateView):
@@ -16,14 +28,14 @@ class IndexView(TemplateView):
         context['categories'] = Category.objects.all()
         context['current_category'] = None
         return context
-    
+
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         if request.headers.get('HX-Request'):
             return TemplateResponse(request, 'main/home_content.html', context)
         return TemplateResponse(request, self.template_name, context)
-    
+
 
 class CatalogView(TemplateView):
     template_name = 'main/base.html'
@@ -32,8 +44,12 @@ class CatalogView(TemplateView):
         'color': lambda queryset, value: queryset.filter(color__iexact=value),
         'min_price': lambda queryset, value: queryset.filter(price__gte=value),
         'max_price': lambda queryset, value: queryset.filter(price__lte=value),
-        'size': lambda queryset, value: queryset.filter(product_sizes__size__name=value),
+        # Только размеры в наличии: иначе фильтр «M» показывал товар, у которого M уже распродан
+        'size': lambda queryset, value: queryset.filter(
+            product_sizes__size__name=value, product_sizes__stock__gt=0
+        ).distinct(),
     }
+    PRICE_PARAMS = ('min_price', 'max_price')
 
 
     def get_context_data(self, **kwargs):
@@ -55,12 +71,12 @@ class CatalogView(TemplateView):
 
         filter_params = {}
         for param, filter_func in self.FILTER_MAPPING.items():
-            value = self.request.GET.get(param)
+            value = self.request.GET.get(param, '').strip()
+            if param in self.PRICE_PARAMS and value and parse_price(value) is None:
+                value = ''  # не число — фильтр просто не применяем
             if value:
                 products = filter_func(products, value)
-                filter_params[param] = value
-            else:
-                filter_params[param] = ''
+            filter_params[param] = value
 
         filter_params['q'] = query or ''
 
@@ -77,9 +93,9 @@ class CatalogView(TemplateView):
             context['show_search'] = True
         elif self.request.GET.get('reset_search') == 'true':
             context['reset_search'] = True
-        
+
         return context
-    
+
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -91,7 +107,7 @@ class CatalogView(TemplateView):
             template = 'main/filter_modal.html' if request.GET.get('show_filters') == 'true' else 'main/catalog.html'
             return TemplateResponse(request, template, context)
         return TemplateResponse(request, self.template_name, context)
-    
+
 
 class ProductDetailView(DetailView):
     model = Product
@@ -102,14 +118,15 @@ class ProductDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        product = self.get_object()
+        # Товар уже загружен в get(): повторный get_object() делал лишний запрос
+        product = self.object
         context['categories'] = Category.objects.all()
         context['related_products'] = Product.objects.filter(
             category=product.category
         ).exclude(id=product.id)[:4]
         context['current_category'] = product.category.slug
         return context
-    
+
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
